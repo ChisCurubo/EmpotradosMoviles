@@ -9,7 +9,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.practica"
+        applicationId = "com.example.snap"
         minSdk = 34
         targetSdk = 36
         versionCode = 1
