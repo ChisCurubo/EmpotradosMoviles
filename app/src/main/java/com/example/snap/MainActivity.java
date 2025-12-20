@@ -13,6 +13,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import com.example.snap.camara.Camara;
+
 
 import com.google.android.material.snackbar.Snackbar;
 
@@ -34,6 +36,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        // Lanzar directamente la cámara
+        Intent intent = new Intent(this, Camara.class);
+        startActivity(intent);
+
+        // Cerrar Main para que no vuelva atrás
+        finish();
+    }
+
+/*    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
@@ -86,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-    }
+    }*/
 
     @Override
     protected void onResume() {

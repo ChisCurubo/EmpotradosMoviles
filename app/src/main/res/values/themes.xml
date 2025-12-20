@@ -6,4 +6,10 @@
     </style>
 
     <style name="Theme.Practica" parent="Base.Theme.Practica" />
+
+    <style name="Theme.Translator" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">#6C63FF</item>
+        <item name="colorPrimaryVariant">#5548E5</item>
+        <item name="colorOnPrimary">@android:color/white</item>
+    </style>
 </resources>

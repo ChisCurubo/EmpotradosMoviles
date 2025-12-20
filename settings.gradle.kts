@@ -19,5 +19,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Practica"
+rootProject.name = "SnapLingua"
 include(":app")
