@@ -1,5 +1,27 @@
 <resources>
-    <string name="app_name" translatable="false">SnapLingua</string>
+    <string name="app_name" translatable="false">Tongi</string>
+    <string name="entrada">Entrada</string>
+    <string name="salida">Salida</string>
+    <string name="espanol">Español</string>
+    <string name="ingles">Inglés</string>
+    <string name="pegar">Pegar</string>
+    <string name="copiar">Copiar</string>
+    <string name="traducciones_rapidas">Traducciones rápidas</string>
+    <string name="texto">Texto</string>
+    <string name="camara">Cámara</string>
+    <string name="audio">Audio</string>
+    <string name="placeholder_input">Hola, escriba aquí su texto </string>
+    <string name="placeholder_output">Hello, write here your text </string>
+
+    <string-array name="languages">
+        <item>Español</item>
+        <item>Inglés</item>
+        <item>Francés</item>
+        <item>Alemán</item>
+        <item>Italiano</item>
+    </string-array>
+
+    <!-- Mantener strings antiguos para evitar errores de compilación en otras actividades -->
     <string name="AddButton">Add</string>
     <string name="ResultsButton">Go to Results</string>
     <string name="TextResult">Final result:</string>
