@@ -16,7 +16,9 @@
         android:paddingTop="16dp"
         android:paddingEnd="20dp"
         android:paddingBottom="12dp"
-        android:gravity="center_vertical">
+        android:gravity="center_vertical"
+        android:elevation="10dp"
+        android:zAdjustment="top">
 
         <TextView
             android:layout_width="0dp"
@@ -26,16 +28,20 @@
             android:textColor="@android:color/white"
             android:textSize="28sp"
             android:textStyle="bold"
-            android:fontFamily="sans-serif-medium" />
+            android:fontFamily="sans-serif-medium"
+            android:shadowColor="#80000000"
+            android:shadowDx="2"
+            android:shadowDy="2"
+            android:shadowRadius="4"/>
 
-        <ImageButton
-            android:id="@+id/btnSettings"
-            android:layout_width="44dp"
-            android:layout_height="44dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@android:drawable/ic_menu_manage"
-            android:tint="@android:color/white"
-            android:contentDescription="Configuración" />
+    <!--        <ImageButton
+                android:id="@+id/btnSettings"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@android:drawable/ic_menu_manage"
+                android:tint="@android:color/white"
+                android:contentDescription="Configuración" />-->
     </LinearLayout>
 
     <!-- Vista de cámara / imagen (PANTALLA COMPLETA) -->
@@ -44,25 +50,59 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/headerLayout"
-        android:layout_above="@id/bottomButtonsLayout">
+        android:layout_above="@id/bottomNavbar">
 
-        <!-- Vista previa de cámara -->
+
+        <!-- 1. Vista previa de cámara -->
         <androidx.camera.view.PreviewView
             android:id="@+id/cameraPreview"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="gone" />
+            android:layout_height="match_parent" />
 
-        <!-- ImageView para mostrar imagen capturada o de galería -->
+        <!-- 2. ImageView para foto estática (Galería/Captura) -->
         <ImageView
             android:id="@+id/imagePreview"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:scaleType="centerCrop"
-            android:background="#424242"
+            android:scaleType="fitCenter"
+            android:background="#000000"
+            android:visibility="gone"
             android:contentDescription="Vista previa de imagen" />
 
-        <!-- Icono de galería cuando no hay imagen -->
+        <!-- 3. CAPA DE DIBUJO (CAJAS PEQUEÑAS) -->
+        <com.example.snap.camara.GraphicOverlay
+            android:id="@+id/graphicOverlay"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <!-- 4. TEXTO GRANDE CENTRAL -->
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:fillViewport="true"
+            android:padding="24dp">
+
+            <TextView
+                android:id="@+id/tvTranslatedResult"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textColor="#FFFFFF"
+                android:textSize="28sp"
+                android:textStyle="bold"
+                android:shadowColor="#000000"
+                android:shadowDx="4"
+                android:shadowDy="4"
+                android:shadowRadius="8"
+                android:background="#99000000"
+                android:padding="20dp"
+                android:visibility="gone"
+                tools:text="TEXTO TRADUCIDO AQUÍ EN GRANDE"
+                tools:visibility="visible"/>
+        </ScrollView>
+
+        <!-- Icono de galería (placeholder) -->
         <ImageView
             android:id="@+id/iconGallery"
             android:layout_width="100dp"
@@ -71,88 +111,25 @@
             android:src="@android:drawable/ic_menu_gallery"
             android:tint="#757575"
             android:alpha="0.4"
+            android:visibility="gone"
             android:contentDescription="Seleccionar imagen" />
 
-        <!-- Overlay gradient para mejorar legibilidad de controles superiores -->
+        <!-- Sombra superior -->
         <View
             android:layout_width="match_parent"
             android:layout_height="180dp"
             android:background="@drawable/gradient_top"
             android:layout_gravity="top" />
 
-        <!-- Contenedor de selectores de idioma SOBRE LA CÁMARA -->
-        <LinearLayout
-            android:id="@+id/languageSelectorsLayout"
+        <!-- Componente: LanguageSelector (Incluido) -->
+        <com.example.snap.components.LanguageSelector
+            android:id="@+id/languageSelector"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:paddingTop="12dp"
-            android:layout_gravity="top"
-            android:gravity="center_vertical">
+            android:layout_gravity="top" />
 
-            <!-- Spinner de idioma origen -->
-            <androidx.cardview.widget.CardView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginEnd="6dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="6dp"
-                app:cardBackgroundColor="@android:color/white">
 
-                <Spinner
-                    android:id="@+id/spinnerSourceLanguage"
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:paddingStart="16dp"
-                    android:paddingEnd="8dp"
-                    android:background="@android:color/white"
-                    android:spinnerMode="dropdown" />
-            </androidx.cardview.widget.CardView>
-
-            <!-- Botón de intercambio -->
-            <androidx.cardview.widget.CardView
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                app:cardCornerRadius="24dp"
-                app:cardElevation="6dp"
-                app:cardBackgroundColor="@android:color/white">
-
-                <ImageButton
-                    android:id="@+id/btnSwapLanguages"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:src="@android:drawable/ic_menu_revert"
-                    android:tint="#5548E5"
-                    android:contentDescription="Intercambiar idiomas" />
-            </androidx.cardview.widget.CardView>
-
-            <!-- Spinner de idioma destino -->
-            <androidx.cardview.widget.CardView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginStart="6dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="6dp"
-                app:cardBackgroundColor="@android:color/white">
-
-                <Spinner
-                    android:id="@+id/spinnerTargetLanguage"
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:paddingStart="16dp"
-                    android:paddingEnd="8dp"
-                    android:background="@android:color/white"
-                    android:spinnerMode="dropdown" />
-            </androidx.cardview.widget.CardView>
-        </LinearLayout>
-
-        <!-- Botones flotantes sobre la cámara -->
-        <!-- Botón de captura flotante -->
+        <!-- Botones Flotantes -->
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/btnCapture"
             android:layout_width="wrap_content"
@@ -165,9 +142,8 @@
             app:fabSize="normal"
             app:elevation="8dp"
             android:visibility="gone"
-            android:contentDescription="Capturar foto" />
+            android:contentDescription="Capturar" />
 
-        <!-- Botón de galería flotante -->
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/btnGallery"
             android:layout_width="wrap_content"
@@ -177,12 +153,11 @@
             android:layout_marginBottom="32dp"
             android:src="@android:drawable/ic_menu_gallery"
             app:tint="@android:color/white"
-            app:backgroundTint="@android:color/white"
+            app:backgroundTint="#5548E5"
             app:fabSize="normal"
             app:elevation="8dp"
-            android:contentDescription="Seleccionar de galería" />
+            android:contentDescription="Galería" />
 
-        <!-- Botón de reintento -->
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/btnRefresh"
             android:layout_width="wrap_content"
@@ -196,108 +171,16 @@
             app:fabSize="mini"
             app:elevation="8dp"
             android:visibility="gone"
-            android:contentDescription="Volver a cámara" />
+            android:contentDescription="Volver" />
+
     </FrameLayout>
 
-    <!-- Botones inferiores -->
-    <LinearLayout
-        android:id="@+id/bottomButtonsLayout"
+    <!-- Componente: BottomNavbar (Incluido) -->
+    <include
+        android:id="@+id/bottomNavbar"
+        layout="@layout/layout_bottom_navbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:orientation="horizontal"
-        android:paddingTop="12dp"
-        android:paddingBottom="12dp"
-        android:paddingStart="8dp"
-        android:paddingEnd="8dp"
-        android:gravity="center"
-        android:background="@android:color/white"
-        android:elevation="8dp">
-
-        <!-- Botón de texto -->
-        <LinearLayout
-            android:id="@+id/btnTextMode"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="center"
-            android:padding="8dp"
-            android:background="?attr/selectableItemBackground"
-            android:clickable="true"
-            android:focusable="true">
-
-            <ImageView
-                android:layout_width="28dp"
-                android:layout_height="28dp"
-                android:src="@android:drawable/ic_menu_edit"
-                android:tint="#9E9E9E" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Texto"
-                android:textColor="#9E9E9E"
-                android:textSize="11sp"
-                android:layout_marginTop="4dp" />
-        </LinearLayout>
-
-        <!-- Botón de cámara -->
-        <LinearLayout
-            android:id="@+id/btnCameraMode"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="center"
-            android:padding="8dp"
-            android:background="?attr/selectableItemBackground"
-            android:clickable="true"
-            android:focusable="true">
-
-            <ImageView
-                android:layout_width="28dp"
-                android:layout_height="28dp"
-                android:src="@android:drawable/ic_menu_camera"
-                android:tint="#5548E5" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Cámara"
-                android:textColor="#5548E5"
-                android:textSize="11sp"
-                android:textStyle="bold"
-                android:layout_marginTop="4dp" />
-        </LinearLayout>
-
-        <!-- Botón de audio -->
-        <LinearLayout
-            android:id="@+id/btnAudioMode"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="center"
-            android:padding="8dp"
-            android:background="?attr/selectableItemBackground"
-            android:clickable="true"
-            android:focusable="true">
-
-            <ImageView
-                android:layout_width="28dp"
-                android:layout_height="28dp"
-                android:src="@android:drawable/ic_btn_speak_now"
-                android:tint="#9E9E9E" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Audio"
-                android:textColor="#9E9E9E"
-                android:textSize="11sp"
-                android:layout_marginTop="4dp" />
-        </LinearLayout>
-    </LinearLayout>
+        android:layout_alignParentBottom="true" />
 
 </RelativeLayout>

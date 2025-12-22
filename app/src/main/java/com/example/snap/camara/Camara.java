@@ -1,7 +1,6 @@
 package com.example.snap.camara;
 
 import android.Manifest;
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -9,20 +8,23 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.util.Size;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
+import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Preview;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
@@ -30,8 +32,17 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.example.snap.R;
+import com.example.snap.components.LanguageSelector;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.mlkit.vision.common.InputImage;
+import com.google.mlkit.vision.text.Text;
+import com.google.mlkit.vision.text.TextRecognition;
+import com.google.mlkit.vision.text.TextRecognizer;
+import com.google.mlkit.vision.text.latin.TextRecognizerOptions;
+
+import com.example.snap.api.TranslateApiClient;
+
 
 import java.io.File;
 import java.io.IOException;
@@ -43,180 +54,95 @@ public class Camara extends AppCompatActivity {
 
     private static final String TAG = "CamaraActivity";
 
-    // Códigos de solicitud
     private static final int CAMERA_PERMISSION_CODE = 100;
     private static final int GALLERY_REQUEST_CODE = 101;
     private static final int STORAGE_PERMISSION_CODE = 102;
 
     // Views
-    private Spinner spinnerSourceLanguage;
-    private Spinner spinnerTargetLanguage;
-    private ImageButton btnSwapLanguages;
-    private ImageButton btnSettings;
+    private LanguageSelector languageSelector;
+
+
     private PreviewView cameraPreview;
     private ImageView imagePreview;
-    private ImageView iconGallery;
+    private TextView tvTranslatedResult;
+
     private FloatingActionButton btnCapture;
     private FloatingActionButton btnGallery;
-    private ImageButton btnRefresh;
+    private FloatingActionButton btnRefresh;
+
     private View btnTextMode;
     private View btnCameraMode;
     private View btnAudioMode;
 
-    // CameraX
+    //CameraX y Logica
     private ImageCapture imageCapture;
+    private ImageAnalysis imageAnalysis;
     private ExecutorService cameraExecutor;
+    private ProcessCameraProvider cameraProvider;
+
+    // Controlar el ciclo de vida (Bandera global)
     private boolean isCameraActive = false;
 
+    //Variables de optimización OCR
+    private boolean isProcessing = false;
+    private long lastAnalysisTime = 0;
+    private static final long ANALYSIS_INTERVAL_MS = 700; // 0.7s (ideal para balancear respuesta/batería)
 
-    // OCR
-    private OCR_Helper ocrHelper;
-    private ProgressDialog progressDialog;
+    private TextRecognizer textRecognizer;
 
-    // Idiomas disponibles
     private String[] languages = {
-            "Español", "Italiano", "Inglés", "Francés",
-            "Alemán", "Portugués", "Chino", "Japonés", "Árabe", "Ruso"
+            "Español", "Inglés", "Francés", "Alemán",
+            "Italiano", "Portugués", "Chino", "Japonés"
     };
-    private int sourceLanguagePosition = 0;
-    private int targetLanguagePosition = 1;
+
+    private void showBigErrorMessage(String message) {
+        runOnUiThread(() -> {
+            tvTranslatedResult.setVisibility(View.VISIBLE);
+            tvTranslatedResult.setText(message);
+        });
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camara);
 
-        // Inicializar componentes
         initializeViews();
-        setupLanguageSpinners();
         setupButtons();
 
-        // Inicializar executor para CameraX
+        //Usamos un thread separado para análisis para no bloquear la UI
         cameraExecutor = Executors.newSingleThreadExecutor();
+        textRecognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS);
 
-        // Inicializar OCR Helper
-        ocrHelper = new OCR_Helper();
-
-        // Verificar y solicitar permisos al iniciar
-        checkAndRequestPermissions();
-    }
-
-    /**
-     * Verifica y solicita todos los permisos necesarios
-     */
-    private void checkAndRequestPermissions() {
-        if (checkCameraPermission()) {
-            // Si tenemos permiso de cámara, iniciarla automáticamente
-            startCamera();
-        } else {
-            // Solicitar permiso de cámara
-            requestCameraPermission();
+        //Verificar permisos al iniciar, pero el arranque real lo maneja onResume
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, CAMERA_PERMISSION_CODE);
         }
     }
 
-    /**
-     * Inicializa todas las vistas
-     */
     private void initializeViews() {
-        // Spinners de idiomas
-        spinnerSourceLanguage = findViewById(R.id.spinnerSourceLanguage);
-        spinnerTargetLanguage = findViewById(R.id.spinnerTargetLanguage);
+        languageSelector = findViewById(R.id.languageSelector);
 
-        // Botones
-        btnSwapLanguages = findViewById(R.id.btnSwapLanguages);
-        btnSettings = findViewById(R.id.btnSettings);
+
+        cameraPreview = findViewById(R.id.cameraPreview);
+        imagePreview = findViewById(R.id.imagePreview);
+        tvTranslatedResult = findViewById(R.id.tvTranslatedResult);
+
         btnCapture = findViewById(R.id.btnCapture);
         btnGallery = findViewById(R.id.btnGallery);
         btnRefresh = findViewById(R.id.btnRefresh);
 
-        // Vistas de imagen y cámara
-        cameraPreview = findViewById(R.id.cameraPreview);
-        imagePreview = findViewById(R.id.imagePreview);
-        iconGallery = findViewById(R.id.iconGallery);
-
-        // Botones inferiores
         btnTextMode = findViewById(R.id.btnTextMode);
         btnCameraMode = findViewById(R.id.btnCameraMode);
         btnAudioMode = findViewById(R.id.btnAudioMode);
-
-        // Hacer visible el botón de galería desde el inicio
-        btnGallery.setVisibility(View.VISIBLE);
-
-        // Configurar color del ícono de galería para mejor contraste
-        btnGallery.setImageTintList(android.content.res.ColorStateList.valueOf(0xFF5548E5));
     }
 
-    /**
-     * Configura los spinners de selección de idioma
-     */
-    private void setupLanguageSpinners() {
-        // Crear adaptador para los spinners
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(
-                this,
-                android.R.layout.simple_spinner_item,
-                languages
-        );
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
-        // Configurar spinner de idioma origen
-        spinnerSourceLanguage.setAdapter(adapter);
-        spinnerSourceLanguage.setSelection(sourceLanguagePosition);
-        spinnerSourceLanguage.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                sourceLanguagePosition = position;
-            }
 
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {}
-        });
-
-        // Configurar spinner de idioma destino
-        spinnerTargetLanguage.setAdapter(adapter);
-        spinnerTargetLanguage.setSelection(targetLanguagePosition);
-        spinnerTargetLanguage.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                targetLanguagePosition = position;
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {}
-        });
-    }
-
-    /**
-     * Configura todos los botones de la interfaz
-     */
     private void setupButtons() {
-        // Botón de intercambio de idiomas
-        btnSwapLanguages.setOnClickListener(v -> swapLanguages());
+        btnCapture.setOnClickListener(v -> capturePhoto());
 
-        // Botón de configuración
-        btnSettings.setOnClickListener(v ->
-                Toast.makeText(this, "Configuración", Toast.LENGTH_SHORT).show()
-        );
-
-        // Botón de modo cámara
-        btnCameraMode.setOnClickListener(v -> {
-            if (checkCameraPermission()) {
-                startCamera();
-            } else {
-                requestCameraPermission();
-            }
-        });
-
-        // Botón de modo texto
-        btnTextMode.setOnClickListener(v ->
-                Toast.makeText(this, "Modo texto próximamente", Toast.LENGTH_SHORT).show()
-        );
-
-        // Botón de modo audio
-        btnAudioMode.setOnClickListener(v ->
-                Toast.makeText(this, "Modo audio próximamente", Toast.LENGTH_SHORT).show()
-        );
-
-        // Botón de galería (FAB)
         btnGallery.setOnClickListener(v -> {
             if (checkStoragePermission()) {
                 openGallery();
@@ -225,416 +151,341 @@ public class Camara extends AppCompatActivity {
             }
         });
 
-        // Botón de captura de foto
-        btnCapture.setOnClickListener(v -> capturePhoto());
-
-        // Botón de refrescar/reintentar
         btnRefresh.setOnClickListener(v -> resetToCamera());
+        btnCameraMode.setOnClickListener(v -> resetToCamera());
+
+        btnTextMode.setOnClickListener(v -> Toast.makeText(this, "Modo Texto", Toast.LENGTH_SHORT).show());
+        btnAudioMode.setOnClickListener(v -> Toast.makeText(this, "Modo Audio", Toast.LENGTH_SHORT).show());
     }
 
-    /**
-     * Intercambia los idiomas seleccionados
-     */
-    private void swapLanguages() {
-        int temp = sourceLanguagePosition;
-        sourceLanguagePosition = targetLanguagePosition;
-        targetLanguagePosition = temp;
+    //CICLO DE VIDA OPTIMIZADO
 
-        spinnerSourceLanguage.setSelection(sourceLanguagePosition);
-        spinnerTargetLanguage.setSelection(targetLanguagePosition);
-
-        Toast.makeText(this, "Idiomas intercambiados", Toast.LENGTH_SHORT).show();
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Arrancar cámara SOLO si tenemos permiso y corresponde
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+                == PackageManager.PERMISSION_GRANTED) {
+            // Solo iniciamos si no estamos mostrando una imagen estática (preview invisible)
+            if (imagePreview.getVisibility() != View.VISIBLE) {
+                startCamera();
+            }
+        }
     }
 
-    /**
-     * Verifica si se tiene permiso de cámara
-     */
-    private boolean checkCameraPermission() {
-        return ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
-                == PackageManager.PERMISSION_GRANTED;
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // Pausa real: liberar recursos de cámara inmediatamente
+        stopCamera();
     }
 
-    /**
-     * Solicita permiso de cámara
-     */
-    private void requestCameraPermission() {
-        ActivityCompat.requestPermissions(
-                this,
-                new String[]{Manifest.permission.CAMERA},
-                CAMERA_PERMISSION_CODE
-        );
-    }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        //Limpieza final
+        stopCamera();
 
-    /**
-     * Verifica si se tiene permiso de almacenamiento
-     */
-    private boolean checkStoragePermission() {
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-            return ContextCompat.checkSelfPermission(this,
-                    Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED;
-        } else {
-            return ContextCompat.checkSelfPermission(this,
-                    Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
+        if (cameraExecutor != null && !cameraExecutor.isShutdown()) {
+            cameraExecutor.shutdown();
+        }
+        if (textRecognizer != null) {
+            textRecognizer.close();
         }
     }
 
     /**
-     * Solicita permiso de almacenamiento
+     * Método para detener y liberar la cámara completamente
      */
-    private void requestStoragePermission() {
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-            ActivityCompat.requestPermissions(
-                    this,
-                    new String[]{Manifest.permission.READ_MEDIA_IMAGES},
-                    STORAGE_PERMISSION_CODE
-            );
-        } else {
-            ActivityCompat.requestPermissions(
-                    this,
-                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                    STORAGE_PERMISSION_CODE
-            );
+    private void stopCamera() {
+        if (cameraProvider != null) {
+            cameraProvider.unbindAll();
         }
+        isCameraActive = false;
+        isProcessing = false;
     }
 
-    /**
-     * Inicia la cámara usando CameraX
-     */
+    //StartCamera
+
     private void startCamera() {
-        Log.d(TAG, "Iniciando cámara...");
+        // Evita reinicios innecesarios si ya está activa
+        if (isCameraActive) return;
 
         ListenableFuture<ProcessCameraProvider> cameraProviderFuture =
                 ProcessCameraProvider.getInstance(this);
 
         cameraProviderFuture.addListener(() -> {
             try {
-                ProcessCameraProvider cameraProvider = cameraProviderFuture.get();
-                bindCameraPreview(cameraProvider);
+                cameraProvider = cameraProviderFuture.get();
+                bindCameraUseCases();
+                isCameraActive = true; //Marcamos como activa
+
+                // Actualizar UI
+                btnCapture.setVisibility(View.VISIBLE);
+                btnGallery.setVisibility(View.VISIBLE);
+                btnRefresh.setVisibility(View.GONE);
+
             } catch (ExecutionException | InterruptedException e) {
-                Log.e(TAG, "Error al obtener ProcessCameraProvider", e);
-                Toast.makeText(this,
-                        "Error al iniciar la cámara: " + e.getMessage(),
-                        Toast.LENGTH_SHORT).show();
+                Log.e(TAG, "Error al iniciar cámara", e);
             }
         }, ContextCompat.getMainExecutor(this));
     }
 
-    /**
-     * Vincula la vista previa de la cámara
-     */
-    private void bindCameraPreview(ProcessCameraProvider cameraProvider) {
-        Log.d(TAG, "Vinculando cámara...");
+    private void bindCameraUseCases() {
+        if (cameraProvider == null) return;
 
-        // Configurar vista previa
         Preview preview = new Preview.Builder().build();
-
-        // Seleccionar cámara trasera
-        CameraSelector cameraSelector = new CameraSelector.Builder()
-                .requireLensFacing(CameraSelector.LENS_FACING_BACK)
-                .build();
-
-        // Configurar captura de imagen
-        imageCapture = new ImageCapture.Builder()
-                .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
-                .build();
-
-        // Conectar la vista previa
         preview.setSurfaceProvider(cameraPreview.getSurfaceProvider());
 
+        CameraSelector cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA;
+
+        imageCapture = new ImageCapture.Builder().build();
+
+        //Configuración optimizada de análisis de imagen
+        imageAnalysis = new ImageAnalysis.Builder()
+                // Resolución más baja = menos CPU = más batería
+                .setTargetResolution(new Size(1280, 720))
+                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                .build();
+
+        //Analyzer
+        imageAnalysis.setAnalyzer(cameraExecutor, imageProxy -> {
+            long currentTime = System.currentTimeMillis();
+
+            //Logica de descarte de frames:
+            //Si la cámara no está activa, si ya estamos procesando, o si no ha pasado el tiempo
+            if (!isCameraActive ||
+                    isProcessing ||
+                    (currentTime - lastAnalysisTime < ANALYSIS_INTERVAL_MS)) {
+
+                imageProxy.close(); //IMPORTANTE: Cerrar proxy inmediatamente
+                return;
+            }
+
+            lastAnalysisTime = currentTime;
+            isProcessing = true;
+            processImageProxy(imageProxy);
+        });
+
         try {
-            // Desvincular casos de uso anteriores
             cameraProvider.unbindAll();
-
-            // Vincular casos de uso a la cámara
             cameraProvider.bindToLifecycle(
-                    this,
-                    cameraSelector,
-                    preview,
-                    imageCapture
-            );
-
-            // Mostrar vista de cámara
-            isCameraActive = true;
-            cameraPreview.setVisibility(View.VISIBLE);
-            imagePreview.setVisibility(View.GONE);
-            iconGallery.setVisibility(View.GONE);
-            btnCapture.setVisibility(View.VISIBLE);
-            btnRefresh.setVisibility(View.GONE);
-            btnGallery.setVisibility(View.VISIBLE); // ✅ Mantener visible
-
-            Log.d(TAG, "Cámara vinculada correctamente");
-            Toast.makeText(this, "Cámara lista", Toast.LENGTH_SHORT).show();
-
+                    this, cameraSelector, preview, imageCapture, imageAnalysis);
         } catch (Exception e) {
-            Log.e(TAG, "Error al vincular cámara", e);
-            Toast.makeText(this,
-                    "Error al vincular cámara: " + e.getMessage(),
-                    Toast.LENGTH_SHORT).show();
+            Log.e(TAG, "Error binding camera", e);
         }
     }
 
-    /**
-     * Captura una foto con la cámara
-     */
-    private void capturePhoto() {
-        if (imageCapture == null) {
-            Toast.makeText(this, "Cámara no está lista", Toast.LENGTH_SHORT).show();
+    @androidx.camera.core.ExperimentalGetImage
+    private void processImageProxy(ImageProxy imageProxy) {
+        if (imageProxy.getImage() == null) {
+            imageProxy.close();
+            isProcessing = false;
             return;
         }
 
-        // Crear archivo para guardar la foto
-        File photoFile = new File(
-                getExternalFilesDir(null),
-                "IMG_" + System.currentTimeMillis() + ".jpg"
+        InputImage image = InputImage.fromMediaImage(
+                imageProxy.getImage(),
+                imageProxy.getImageInfo().getRotationDegrees()
         );
 
-        // Configurar opciones de salida
+        textRecognizer.process(image)
+                .addOnSuccessListener(visionText -> {
+                    runOnUiThread(() -> {
+                        StringBuilder fullText = new StringBuilder();
+                        for (Text.TextBlock block : visionText.getTextBlocks()) {
+                            fullText.append(block.getText()).append("\n");
+                        }
+
+                        //Actualizar UI
+                        if (fullText.length() > 0) {
+                            tvTranslatedResult.setVisibility(View.VISIBLE);
+                            tvTranslatedResult.setText(fullText.toString().trim());
+                        } else {
+                            tvTranslatedResult.setVisibility(View.GONE);
+                        }
+                    });
+                })
+                .addOnFailureListener(e -> Log.e(TAG, "Error OCR", e))
+                .addOnCompleteListener(task -> {
+                    //SIEMPRE cerrar el proxy y liberar la bandera al terminar
+                    imageProxy.close();
+                    isProcessing = false;
+                });
+    }
+
+    // CAPTURA ESTATICA
+
+    private void capturePhoto() {
+        if (imageCapture == null) return;
+
+        btnCapture.setEnabled(false);
+
+        File photoFile = new File(getExternalFilesDir(null), "photo.jpg");
         ImageCapture.OutputFileOptions outputOptions =
                 new ImageCapture.OutputFileOptions.Builder(photoFile).build();
 
-        // Capturar la imagen
-        imageCapture.takePicture(
-                outputOptions,
-                cameraExecutor,
+        imageCapture.takePicture(outputOptions, ContextCompat.getMainExecutor(this),
                 new ImageCapture.OnImageSavedCallback() {
                     @Override
                     public void onImageSaved(@NonNull ImageCapture.OutputFileResults output) {
-                        runOnUiThread(() -> {
-                            Uri savedUri = Uri.fromFile(photoFile);
-                            showCapturedImage(savedUri);
-                            Toast.makeText(Camara.this,
-                                    "Foto capturada correctamente",
-                                    Toast.LENGTH_SHORT).show();
-                        });
+                        btnCapture.setEnabled(true);
+                        Uri savedUri = Uri.fromFile(photoFile);
+                        displayStaticImage(savedUri);
                     }
-
                     @Override
-                    public void onError(@NonNull ImageCaptureException exception) {
-                        runOnUiThread(() ->
-                                Toast.makeText(Camara.this,
-                                        "Error al capturar: " + exception.getMessage(),
-                                        Toast.LENGTH_SHORT).show()
-                        );
+                    public void onError(@NonNull ImageCaptureException exc) {
+                        btnCapture.setEnabled(true);
+                        Log.e(TAG, "Error captura: " + exc.getMessage());
                     }
-                }
-        );
+                });
     }
 
-    /**
-     * Abre la galería para seleccionar una imagen
-     */
+    private void displayStaticImage(Uri imageUri) {
+        try {
+            Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUri);
+
+            //Pausar OCR cuando hay imagen estática
+            stopCamera(); // Esto llama a unbindAll() y pone isCameraActive = false
+
+            cameraPreview.setVisibility(View.GONE);
+            imagePreview.setVisibility(View.VISIBLE);
+            imagePreview.setImageBitmap(bitmap);
+
+            btnCapture.setVisibility(View.GONE);
+            btnRefresh.setVisibility(View.VISIBLE);
+            btnGallery.setVisibility(View.GONE);
+
+            // Limpiar texto anterior mientras procesa nuevo
+            tvTranslatedResult.setText("");
+
+            runOCRkOnBitmap(bitmap);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    private void runOCRkOnBitmap(Bitmap bitmap) {
+
+        InputImage image = InputImage.fromBitmap(bitmap, 0);
+
+        textRecognizer.process(image)
+                .addOnSuccessListener(visionText -> {
+
+                    StringBuilder fullText = new StringBuilder();
+                    for (Text.TextBlock block : visionText.getTextBlocks()) {
+                        fullText.append(block.getText()).append("\n");
+                    }
+
+                    //No se detectó texto
+                    if (fullText.length() == 0) {
+                        runOnUiThread(() -> {
+                            showBigErrorMessage("No se pudo leer bien la imagen");
+                            Toast.makeText(
+                                    Camara.this,
+                                    "No se pudo leer bien la imagen",
+                                    Toast.LENGTH_SHORT
+                            ).show();
+                        });
+                        return;
+                    }
+
+                    String originalText = fullText.toString().trim();
+
+                    String sourceLang = languageSelector.getSourceLangCode();
+                    String targetLang = languageSelector.getTargetLangCode();
+
+                    // LLAMADA A TU API
+                    TranslateApiClient.getInstance().translate(
+                            originalText,
+                            sourceLang,
+                            targetLang,
+                            new TranslateApiClient.Callback() {
+
+                                @Override
+                                public void onSuccess(String translatedText) {
+                                    runOnUiThread(() -> {
+                                        tvTranslatedResult.setVisibility(View.VISIBLE);
+                                        tvTranslatedResult.setText(translatedText);
+                                    });
+                                }
+
+                                @Override
+                                public void onError(String error) {
+                                    runOnUiThread(() -> {
+                                        showBigErrorMessage("No se pudo leer bien la imagen");
+                                        Toast.makeText(
+                                                Camara.this,
+                                                "Error en la traducción",
+                                                Toast.LENGTH_SHORT
+                                        ).show();
+                                    });
+                                }
+                            }
+                    );
+                })
+                .addOnFailureListener(e -> {
+                    runOnUiThread(() -> {
+                        showBigErrorMessage("No se pudo leer bien la imagen");
+                        Toast.makeText(
+                                Camara.this,
+                                "Error al leer la imagen",
+                                Toast.LENGTH_SHORT
+                        ).show();
+                    });
+                });
+    }
+
+
+    private void resetToCamera() {
+        imagePreview.setVisibility(View.GONE);
+        cameraPreview.setVisibility(View.VISIBLE);
+        tvTranslatedResult.setVisibility(View.GONE);
+
+        startCamera();
+    }
+
+    //PERMISOS Y UTILIDADES
+
     private void openGallery() {
-        Intent intent = new Intent(Intent.ACTION_PICK,
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        intent.setType("image/*");
+        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(intent, GALLERY_REQUEST_CODE);
     }
 
-    /**
-     * Muestra la imagen capturada o seleccionada
-     */
-    private void showCapturedImage(Uri imageUri) {
-        try {
-            Bitmap bitmap = MediaStore.Images.Media.getBitmap(
-                    getContentResolver(),
-                    imageUri
-            );
-
-            imagePreview.setImageBitmap(bitmap);
-
-            // Ocultar cámara y mostrar imagen
-            isCameraActive = false;
-            cameraPreview.setVisibility(View.GONE);
-            imagePreview.setVisibility(View.VISIBLE);
-            iconGallery.setVisibility(View.GONE);
-            btnCapture.setVisibility(View.GONE);
-            btnRefresh.setVisibility(View.VISIBLE);
-            btnGallery.setVisibility(View.VISIBLE);
-
-            Toast.makeText(this,
-                    "Imagen cargada. ¡Lista para traducir!",
-                    Toast.LENGTH_SHORT).show();
-            //Procesar texto de la imagen
-            processImageWithOCR(bitmap);
-        } catch (IOException e) {
-            Toast.makeText(this,
-                    "Error al cargar imagen: " + e.getMessage(),
-                    Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    /**
-     * Procesa la imagen con OCR y extrae el texto
-     */
-    private void processImageWithOCR(Bitmap bitmap) {
-        // Mostrar diálogo de progreso
-        showProgressDialog("Extrayendo texto...");
-
-        // Procesar con OCR
-        ocrHelper.extractTextFromBitmap(bitmap, new OCR_Helper.OCRCallback() {
-            @Override
-            public void onSuccess(String extractedText) {
-                runOnUiThread(() -> {
-                    hideProgressDialog();
-
-                    // Mostrar el texto extraído
-                    showExtractedTextDialog(extractedText);
-
-                    Log.d(TAG, "Texto extraído: " + extractedText);
-                });
-            }
-
-            @Override
-            public void onFailure(Exception e) {
-                runOnUiThread(() -> {
-                    hideProgressDialog();
-                    Toast.makeText(Camara.this,
-                            "Error al extraer texto: " + e.getMessage(),
-                            Toast.LENGTH_LONG).show();
-                });
-            }
-        });
-    }
-
-
-    /**
-     * Muestra el texto extraído en un diálogo
-     */
-    private void showExtractedTextDialog(String text) {
-        new androidx.appcompat.app.AlertDialog.Builder(this)
-                .setTitle("📄 Texto Extraído")
-                .setMessage(text)
-                .setPositiveButton("Traducir", (dialog, which) -> {
-                    // TODO: Aquí irá la funcionalidad de traducción
-                    Toast.makeText(this,
-                            "Traducción próximamente",
-                            Toast.LENGTH_SHORT).show();
-                })
-                .setNegativeButton("Copiar", (dialog, which) -> {
-                    // Copiar al portapapeles
-                    android.content.ClipboardManager clipboard =
-                            (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-                    android.content.ClipData clip =
-                            android.content.ClipData.newPlainText("Texto extraído", text);
-                    clipboard.setPrimaryClip(clip);
-                    Toast.makeText(this, "Texto copiado", Toast.LENGTH_SHORT).show();
-                })
-                .setNeutralButton("Cerrar", null)
-                .show();
-    }
-
-
-    /**
-     * Muestra el diálogo de progreso
-     */
-    private void showProgressDialog(String message) {
-        if (progressDialog == null) {
-            progressDialog = new ProgressDialog(this);
-            progressDialog.setCancelable(false);
-        }
-        progressDialog.setMessage(message);
-        progressDialog.show();
-    }
-
-    /**
-     *  Oculta el diálogo de progreso
-     */
-    private void hideProgressDialog() {
-        if (progressDialog != null && progressDialog.isShowing()) {
-            progressDialog.dismiss();
-        }
-    }
-
-    /**
-     * Reinicia la vista de cámara
-     */
-    private void resetToCamera() {
-        if (checkCameraPermission()) {
-            startCamera();
-        } else {
-            requestCameraPermission();
-        }
-    }
-
-    /**
-     * Maneja el resultado de seleccionar imagen de galería
-     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
-        if (resultCode == RESULT_OK && requestCode == GALLERY_REQUEST_CODE) {
-            if (data != null && data.getData() != null) {
-                Uri selectedImageUri = data.getData();
-                showCapturedImage(selectedImageUri);
+        if (requestCode == GALLERY_REQUEST_CODE && resultCode == RESULT_OK && data != null) {
+            Uri selectedImage = data.getData();
+            if (selectedImage != null) {
+                displayStaticImage(selectedImage);
             }
         }
     }
 
-    /**
-     * Maneja el resultado de solicitudes de permisos
-     */
+    private boolean checkStoragePermission() {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            return ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED;
+        } else {
+            return ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
+        }
+    }
+
+    private void requestStoragePermission() {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_MEDIA_IMAGES}, STORAGE_PERMISSION_CODE);
+        } else {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, STORAGE_PERMISSION_CODE);
+        }
+    }
+
     @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-        if (requestCode == CAMERA_PERMISSION_CODE) {
-            if (grantResults.length > 0 &&
-                    grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Log.d(TAG, "Permiso de cámara concedido");
-                startCamera();
-            } else {
-                Log.w(TAG, "Permiso de cámara denegado");
-                Toast.makeText(this,
-                        "Permiso de cámara denegado. La app necesita acceso a la cámara.",
-                        Toast.LENGTH_LONG).show();
-            }
-        } else if (requestCode == STORAGE_PERMISSION_CODE) {
-            if (grantResults.length > 0 &&
-                    grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Log.d(TAG, "Permiso de almacenamiento concedido");
-                openGallery();
-            } else {
-                Log.w(TAG, "Permiso de almacenamiento denegado");
-                Toast.makeText(this,
-                        "Permiso de almacenamiento denegado",
-                        Toast.LENGTH_LONG).show();
-            }
+        if (requestCode == CAMERA_PERMISSION_CODE && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            startCamera();
+        } else if (requestCode == STORAGE_PERMISSION_CODE && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            openGallery();
         }
-    }
-
-    /**
-     * Limpia recursos al destruir la actividad
-     */
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (cameraExecutor != null) {
-            cameraExecutor.shutdown();
-        }
-        if (ocrHelper != null) {
-            ocrHelper.close();
-        }
-        hideProgressDialog();
-    }
-
-    /**
-     * Pausa la cámara al pausar la actividad
-     */
-    @Override
-    protected void onPause() {
-        super.onPause();
-        // No ocultar la cámara aquí para que se mantenga visible
-    }
-
-    /**
-     * Reanuda la cámara al reanudar la actividad
-     */
-    @Override
-    protected void onResume() {
-        super.onResume();
-        // La cámara se mantendrá visible si ya estaba activa
     }
 }
