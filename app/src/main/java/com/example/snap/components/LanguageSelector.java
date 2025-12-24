@@ -17,11 +17,19 @@ public class LanguageSelector extends LinearLayout {
     private Spinner spinnerTargetLanguage;
     private ImageButton btnSwapLanguages;
 
+    /**
+     * Lista de idiomas
+     */
     private String[] languages = {
             "Español", "Inglés", "Francés", "Alemán",
             "Italiano", "Portugués", "Chino", "Japonés"
     };
 
+    /**
+     * Devuelve el código de idioma a partir del nombre
+     * @param language
+     * @return
+     */
     public String getLanguageCode(String language) {
         switch (language) {
             case "Español": return "es";
@@ -37,21 +45,40 @@ public class LanguageSelector extends LinearLayout {
     }
 
 
+    /**
+     * Constructor
+     * @param context
+     */
     public LanguageSelector(Context context) {
         super(context);
         init(context);
     }
 
+    /**
+     * Constructor
+     * @param context
+     * @param attrs
+     */
     public LanguageSelector(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         init(context);
     }
 
+    /**
+     * Constructor
+     * @param context
+     * @param attrs
+     * @param defStyleAttr
+     */
     public LanguageSelector(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init(context);
     }
 
+    /**
+     * Inicialización
+     * @param context
+     */
     private void init(Context context) {
         LayoutInflater.from(context).inflate(R.layout.layout_language_selector, this, true);
         setOrientation(HORIZONTAL);
@@ -65,6 +92,10 @@ public class LanguageSelector extends LinearLayout {
         setupSwapButton();
     }
 
+    /**
+     * Configura los spinners
+     * @param context
+     */
     private void setupSpinners(Context context) {
         ArrayAdapter<String> adapter = new ArrayAdapter<>(
                 context,
@@ -79,10 +110,16 @@ public class LanguageSelector extends LinearLayout {
         spinnerTargetLanguage.setSelection(1); // Inglés por defecto
     }
 
+    /**
+     * Configura el botón para intercambiar idiomas
+     */
     private void setupSwapButton() {
         btnSwapLanguages.setOnClickListener(v -> swapLanguages());
     }
 
+    /**
+     * Intercambia los idiomas
+     */
     private void swapLanguages() {
         int sourceIndex = spinnerSourceLanguage.getSelectedItemPosition();
         int targetIndex = spinnerTargetLanguage.getSelectedItemPosition();
@@ -91,8 +128,10 @@ public class LanguageSelector extends LinearLayout {
         spinnerTargetLanguage.setSelection(sourceIndex);
     }
 
-
-
+    /**
+     * Getters
+     * @return
+     */
     public Spinner getSpinnerSourceLanguage() {
         return spinnerSourceLanguage;
     }

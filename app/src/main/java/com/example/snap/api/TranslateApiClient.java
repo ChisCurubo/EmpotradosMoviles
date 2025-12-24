@@ -12,6 +12,9 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class TranslateApiClient {
+    /**
+     * Interfaz para manejar los resultados de la traducción
+     */
     public interface Callback {
         void onSuccess(String translatedText);
         void onError(String error);
@@ -26,6 +29,10 @@ public class TranslateApiClient {
 
     private TranslateApiClient() {}
 
+    /**
+     * Patron Singleton
+     * @return
+     */
     public static synchronized TranslateApiClient getInstance() {
         if (instance == null) {
             instance = new TranslateApiClient();
@@ -33,6 +40,14 @@ public class TranslateApiClient {
         return instance;
     }
     // MÉTODO PÚBLICO
+
+    /**
+     * Realiza la traducción
+     * @param text
+     * @param sourceLang
+     * @param targetLang
+     * @param callback
+     */
     public void translate(
             String text,
             String sourceLang,

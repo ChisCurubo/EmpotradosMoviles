@@ -95,6 +95,10 @@ public class Camara extends AppCompatActivity {
             "Italiano", "Portugués", "Chino", "Japonés"
     };
 
+    /**
+     * Muestra un mensaje grande en pantalla
+     * @param message
+     */
     private void showBigErrorMessage(String message) {
         runOnUiThread(() -> {
             tvTranslatedResult.setVisibility(View.VISIBLE);
@@ -103,6 +107,10 @@ public class Camara extends AppCompatActivity {
     }
 
 
+    /**
+     * Crea la instancia vista y carga lo que realiza la clase
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -121,6 +129,9 @@ public class Camara extends AppCompatActivity {
         }
     }
 
+    /**
+     * Inicializa las vistas
+     */
     private void initializeViews() {
         languageSelector = findViewById(R.id.languageSelector);
 
@@ -139,7 +150,9 @@ public class Camara extends AppCompatActivity {
     }
 
 
-
+    /**
+     * Configura los botones
+     */
     private void setupButtons() {
         btnCapture.setOnClickListener(v -> capturePhoto());
 
@@ -160,6 +173,10 @@ public class Camara extends AppCompatActivity {
 
     //CICLO DE VIDA OPTIMIZADO
 
+    /**
+     * Arranca la cámara si tenemos permiso
+     */
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -173,6 +190,10 @@ public class Camara extends AppCompatActivity {
         }
     }
 
+    /**
+     * Pausa la cámara cuando se usa
+     */
+
     @Override
     protected void onPause() {
         super.onPause();
@@ -180,6 +201,9 @@ public class Camara extends AppCompatActivity {
         stopCamera();
     }
 
+    /**
+     * Limpia la cámara al finalizar
+     */
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -205,8 +229,10 @@ public class Camara extends AppCompatActivity {
         isProcessing = false;
     }
 
-    //StartCamera
 
+    /**
+     * Inicia la cámara
+     */
     private void startCamera() {
         // Evita reinicios innecesarios si ya está activa
         if (isCameraActive) return;
@@ -231,6 +257,9 @@ public class Camara extends AppCompatActivity {
         }, ContextCompat.getMainExecutor(this));
     }
 
+    /**
+     * Configuramos el ciclo de vida de la cámara
+     */
     private void bindCameraUseCases() {
         if (cameraProvider == null) return;
 
@@ -276,6 +305,10 @@ public class Camara extends AppCompatActivity {
         }
     }
 
+    /**
+     * Procesar imagen
+     * @param imageProxy
+     */
     @androidx.camera.core.ExperimentalGetImage
     private void processImageProxy(ImageProxy imageProxy) {
         if (imageProxy.getImage() == null) {
@@ -314,8 +347,10 @@ public class Camara extends AppCompatActivity {
                 });
     }
 
-    // CAPTURA ESTATICA
 
+    /**
+     * Captura una foto
+     */
     private void capturePhoto() {
         if (imageCapture == null) return;
 
@@ -341,6 +376,10 @@ public class Camara extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Muestra una imagen estática
+     * @param imageUri
+     */
     private void displayStaticImage(Uri imageUri) {
         try {
             Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUri);
@@ -365,6 +404,11 @@ public class Camara extends AppCompatActivity {
             e.printStackTrace();
         }
     }
+
+    /**
+     * Procesar imagen con OCR
+     * @param bitmap
+     */
     private void runOCRkOnBitmap(Bitmap bitmap) {
 
         InputImage image = InputImage.fromBitmap(bitmap, 0);
@@ -395,7 +439,7 @@ public class Camara extends AppCompatActivity {
                     String sourceLang = languageSelector.getSourceLangCode();
                     String targetLang = languageSelector.getTargetLangCode();
 
-                    // LLAMADA A TU API
+                    // LLAMADA API
                     TranslateApiClient.getInstance().translate(
                             originalText,
                             sourceLang,
@@ -437,6 +481,9 @@ public class Camara extends AppCompatActivity {
     }
 
 
+    /**
+     * Volvemos a la cámara
+     */
     private void resetToCamera() {
         imagePreview.setVisibility(View.GONE);
         cameraPreview.setVisibility(View.VISIBLE);
@@ -445,13 +492,25 @@ public class Camara extends AppCompatActivity {
         startCamera();
     }
 
-    //PERMISOS Y UTILIDADES
 
+
+    /**
+     * PERMISOS Y UTILIDADES
+     */
+    /**
+     * Abre la galería para seleccionar una imagen
+     */
     private void openGallery() {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(intent, GALLERY_REQUEST_CODE);
     }
 
+    /**
+     * Maneja la respuesta de la galería
+     * @param requestCode
+     * @param resultCode
+     * @param data
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -463,6 +522,10 @@ public class Camara extends AppCompatActivity {
         }
     }
 
+    /**
+     * Verifica si tenemos permiso de almacenamiento
+     * @return
+     */
     private boolean checkStoragePermission() {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
             return ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED;
@@ -471,6 +534,9 @@ public class Camara extends AppCompatActivity {
         }
     }
 
+    /**
+     * Solicita permiso de almacenamiento
+     */
     private void requestStoragePermission() {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_MEDIA_IMAGES}, STORAGE_PERMISSION_CODE);
@@ -479,6 +545,16 @@ public class Camara extends AppCompatActivity {
         }
     }
 
+    /**
+     * Maneja la respuesta de los permisos
+     * @param requestCode The request code passed in {@link ActivityCompat#requestPermissions(
+     * android.app.Activity, String[], int)}
+     * @param permissions The requested permissions. Never null.
+     * @param grantResults The grant results for the corresponding permissions
+     *     which is either {@link android.content.pm.PackageManager#PERMISSION_GRANTED}
+     *     or {@link android.content.pm.PackageManager#PERMISSION_DENIED}. Never null.
+     *
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
