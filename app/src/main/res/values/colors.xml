@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Material You Theme Colors -->
+    <color name="md_theme_primary">#6750A4</color>
+    <color name="md_theme_onPrimary">#FFFFFF</color>
+    <color name="md_theme_secondaryContainer">#E8DEF8</color>
+    <color name="md_theme_onSecondaryContainer">#1D192B</color>
+    <color name="md_theme_surface">#FFFBFF</color>
+    <color name="md_theme_onSurface">#1C1B1F</color>
+    <color name="md_theme_background">#FFFBFF</color>
+
+    <!-- Gradient for Record Button -->
+    <color name="gradient_start">#6750A4</color>
+    <color name="gradient_end">#4285F4</color>
+
+    <!-- Legacy colors that were referenced by drawables -->
+    <color name="purple_primary">#6750A4</color>
+    <color name="gradient_blue">#4285F4</color>
+    <color name="white">#FFFFFF</color>
+
+    <!-- Gradient for Record Button (Listening State) -->
+    <color name_="gradient_listening_start">#D50000</color>
+    <color name="gradient_listening_end">#FF6D00</color>
+
+    <!-- Primary -->
+    <color name="purple_500">#6750A4</color>
+    <color name="purple_700">#4F378B</color>
+
+    <!-- Secondary -->
+    <color name="teal_200">#03DAC5</color>
+    <color name="teal_700">#018786</color>
+
+    <!-- Card Background -->
+    <color name="card_background">#F5F5F5</color>
+</resources>

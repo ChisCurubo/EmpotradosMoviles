@@ -1,0 +1,24 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="Base.Theme.Practica" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/md_theme_primary</item>
+        <item name="colorOnPrimary">@color/md_theme_onPrimary</item>
+        <!-- Secondary brand color. -->
+        <item name="colorSecondaryContainer">@color/md_theme_secondaryContainer</item>
+        <item name="colorOnSecondaryContainer">@color/md_theme_onSecondaryContainer</item>
+        <!-- Background and surface colors. -->
+        <item name="android:colorBackground">#F5F5F5</item>
+        <item name="colorSurface">@color/md_theme_surface</item>
+        <item name="colorOnSurface">@color/md_theme_onSurface</item>
+
+        <item name="bottomNavigationStyle">@style/Widget.Practica.BottomNav</item>
+    </style>
+
+    <style name="Widget.Practica.BottomNav"
+        parent="Widget.MaterialComponents.BottomNavigationView">
+        <item name="android:background">@android:color/transparent</item>
+        <item name="elevation">0dp</item>
+        <item name="itemIconTint">?attr/colorPrimary</item>
+        <item name="itemTextColor">?attr/colorPrimary</item>
+    </style>
+</resources>
