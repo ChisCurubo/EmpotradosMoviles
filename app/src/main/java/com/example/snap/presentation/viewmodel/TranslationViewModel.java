@@ -135,6 +135,12 @@ public class TranslationViewModel extends AndroidViewModel {
     public LiveData<List<String>> getFavoriteLanguages(String userId) {
         return favoriteRepository.getFavoriteLanguagesByUser(userId);
     }
+    
+    public void deleteFavorite(Favorite favorite) {
+        if (favorite != null) {
+            favoriteRepository.delete(favorite);
+        }
+    }
 
     private void showLoading() {
         currentTranslation.setValue("Traduciendo...");

@@ -1,121 +1,149 @@
 package com.example.snap;
 
-import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.Toast;
-
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.ViewModelProvider;
 
 import com.example.snap.data.entities.User;
 import com.example.snap.data.repository.UserRepository;
-import com.example.snap.presentation.viewmodel.TranslationViewModel;
+import com.example.snap.ui.base.BaseActivity;
+import com.example.snap.ui.components.BottomNavigationComponent;
+import com.example.snap.utils.ValidationHelper;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class LoginActivity extends AppCompatActivity {
+/**
+ * Actividad de login refactorizada usando componentes reutilizables.
+ * Utiliza ValidationHelper para validaciones y SessionManager para gestión de sesión.
+ */
+public class LoginActivity extends BaseActivity {
 
     private TextInputEditText etEmail, etPassword;
     private Button btnLogin, btnRegister;
-    private TranslationViewModel viewModel;
     private UserRepository userRepository;
     private ExecutorService executorService;
+    private BottomNavigationComponent bottomNavigation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        // Inicializar vistas
+        // Inicializar componentes
+        initializeViews();
+        initializeComponents();
+        
+        // Configurar listeners
+        setupListeners();
+    }
+
+    /**
+     * Inicializa las vistas de la actividad
+     */
+    private void initializeViews() {
         etEmail = findViewById(R.id.etEmail);
         etPassword = findViewById(R.id.etPassword);
         btnLogin = findViewById(R.id.btnLogin);
         btnRegister = findViewById(R.id.btnRegister);
+    }
 
-        // Inicializar ViewModel
-        viewModel = new ViewModelProvider(this).get(TranslationViewModel.class);
+    /**
+     * Inicializa los componentes necesarios
+     */
+    private void initializeComponents() {
         userRepository = new UserRepository(getApplication());
         executorService = Executors.newSingleThreadExecutor();
 
-        // Configurar listeners
-        setupListeners();
-        setupBottomNavigation();
+        // Configurar navegación - permitir salir sin iniciar sesión
+        bottomNavigation = findViewById(R.id.bottomNavigation);
+        if (bottomNavigation != null) {
+            bottomNavigation.setNavigationListener(new BottomNavigationComponent.NavigationListener() {
+                @Override
+                public void onTextoClicked() {
+                    navigationManager.navigateToMain();
+                    finish();
+                }
+
+                @Override
+                public void onCamaraClicked() {
+                    navigationManager.navigateToMain();
+                    finish();
+                }
+
+                @Override
+                public void onAudioClicked() {
+                    showMessage("Modo Audio (Próximamente)");
+                }
+
+                @Override
+                public void onUsuarioClicked() {
+                    showMessage("Ya estás en la pantalla de inicio de sesión");
+                }
+            });
+            bottomNavigation.setActiveScreen("usuario");
+        }
     }
 
+    /**
+     * Configura los listeners de los botones
+     */
     private void setupListeners() {
         btnLogin.setOnClickListener(v -> attemptLogin());
         btnRegister.setOnClickListener(v -> attemptRegister());
     }
 
+    /**
+     * Intenta hacer login con las credenciales ingresadas
+     */
     private void attemptLogin() {
-        String email = etEmail.getText().toString().trim();
-        String password = etPassword.getText().toString().trim();
+        String email = getEmailText();
+        String password = getPasswordText();
 
-        if (email.isEmpty() || password.isEmpty()) {
-            Toast.makeText(this, "Por favor completa todos los campos", Toast.LENGTH_SHORT).show();
+        // Validar campos usando ValidationHelper
+        ValidationHelper.ValidationResult validation = 
+            ValidationHelper.validateLoginFields(email, password);
+        
+        if (!validation.isValid()) {
+            showMessage(validation.getMessage());
             return;
         }
 
-        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            Toast.makeText(this, "Correo electrónico inválido", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        btnLogin.setEnabled(false);
-        btnLogin.setText("Verificando...");
+        setLoginButtonLoading(true);
 
         // Verificar credenciales en segundo plano
         executorService.execute(() -> {
             User user = userRepository.login(email, password);
             
             runOnUiThread(() -> {
-                btnLogin.setEnabled(true);
-                btnLogin.setText("Iniciar Sesión");
+                setLoginButtonLoading(false);
 
                 if (user != null) {
-                    // Login exitoso
-                    saveSession(email);
-                    Toast.makeText(this, "Bienvenido, " + email, Toast.LENGTH_SHORT).show();
-                    
-                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                    intent.putExtra("USER_ID", email);
-                    intent.putExtra("FROM_LOGIN", true);
-                    startActivity(intent);
-                    finish();
+                    handleSuccessfulLogin(email);
                 } else {
-                    Toast.makeText(this, "Credenciales incorrectas. ¿Deseas registrarte?", Toast.LENGTH_LONG).show();
+                    showLongMessage("Credenciales incorrectas. ¿Deseas registrarte?");
                 }
             });
         });
     }
 
+    /**
+     * Intenta registrar un nuevo usuario
+     */
     private void attemptRegister() {
-        String email = etEmail.getText().toString().trim();
-        String password = etPassword.getText().toString().trim();
+        String email = getEmailText();
+        String password = getPasswordText();
 
-        if (email.isEmpty() || password.isEmpty()) {
-            Toast.makeText(this, "Por favor completa todos los campos", Toast.LENGTH_SHORT).show();
+        // Validar campos
+        ValidationHelper.ValidationResult validation = 
+            ValidationHelper.validateLoginFields(email, password);
+        
+        if (!validation.isValid()) {
+            showMessage(validation.getMessage());
             return;
         }
 
-        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            Toast.makeText(this, "Correo electrónico inválido", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        if (password.length() < 4) {
-            Toast.makeText(this, "La contraseña debe tener al menos 4 caracteres", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        btnRegister.setEnabled(false);
-        btnRegister.setText("Registrando...");
+        setRegisterButtonLoading(true);
 
         // Verificar si el usuario ya existe y registrar si no existe
         executorService.execute(() -> {
@@ -126,9 +154,8 @@ public class LoginActivity extends AppCompatActivity {
                 if (existingUser != null) {
                     // El usuario ya existe
                     runOnUiThread(() -> {
-                        btnRegister.setEnabled(true);
-                        btnRegister.setText("Registrarse");
-                        Toast.makeText(LoginActivity.this, "Este correo ya está registrado. Usa 'Iniciar Sesión'", Toast.LENGTH_LONG).show();
+                        setRegisterButtonLoading(false);
+                        showLongMessage("Este correo ya está registrado. Usa 'Iniciar Sesión'");
                     });
                 } else {
                     // El usuario no existe, registrarlo
@@ -136,55 +163,56 @@ public class LoginActivity extends AppCompatActivity {
                     userRepository.registerSync(newUser);
                     
                     runOnUiThread(() -> {
-                        saveSession(email);
-                        Toast.makeText(LoginActivity.this, "Cuenta creada exitosamente", Toast.LENGTH_SHORT).show();
-                        
-                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                        intent.putExtra("USER_ID", email);
-                        intent.putExtra("FROM_LOGIN", true);
-                        startActivity(intent);
-                        finish();
+                        handleSuccessfulLogin(email);
+                        showMessage("Cuenta creada exitosamente");
                     });
                 }
             } catch (Exception e) {
                 runOnUiThread(() -> {
-                    btnRegister.setEnabled(true);
-                    btnRegister.setText("Registrarse");
-                    Toast.makeText(LoginActivity.this, "Error al registrar: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    setRegisterButtonLoading(false);
+                    showLongMessage("Error al registrar: " + e.getMessage());
                 });
             }
         });
     }
 
-    private void saveSession(String email) {
-        SharedPreferences prefs = getSharedPreferences("user_session", MODE_PRIVATE);
-        prefs.edit().putString("active_email", email).apply();
-        android.util.Log.d("LoginActivity", "Sesión guardada: " + email);
+    /**
+     * Maneja el login exitoso
+     */
+    private void handleSuccessfulLogin(String email) {
+        sessionManager.saveSession(email);
+        showMessage("Bienvenido, " + email);
+        navigationManager.navigateToMain(true);
     }
 
-    private void setupBottomNavigation() {
-        View btnNavTexto = findViewById(R.id.nav_texto);
-        View btnNavCamara = findViewById(R.id.nav_camara);
-        View btnNavUsuario = findViewById(R.id.nav_usuario);
+    /**
+     * Obtiene el texto del campo email
+     */
+    private String getEmailText() {
+        return etEmail.getText() != null ? etEmail.getText().toString().trim() : "";
+    }
 
-        if (btnNavTexto != null) {
-            btnNavTexto.setOnClickListener(v -> {
-                Toast.makeText(this, "Inicia sesión primero", Toast.LENGTH_SHORT).show();
-            });
-        }
+    /**
+     * Obtiene el texto del campo password
+     */
+    private String getPasswordText() {
+        return etPassword.getText() != null ? etPassword.getText().toString().trim() : "";
+    }
 
-        if (btnNavCamara != null) {
-            btnNavCamara.setOnClickListener(v -> {
-                Toast.makeText(this, "Inicia sesión primero", Toast.LENGTH_SHORT).show();
-            });
-        }
+    /**
+     * Establece el estado de carga del botón de login
+     */
+    private void setLoginButtonLoading(boolean loading) {
+        btnLogin.setEnabled(!loading);
+        btnLogin.setText(loading ? "Verificando..." : "Iniciar Sesión");
+    }
 
-        if (btnNavUsuario != null) {
-            btnNavUsuario.setOnClickListener(v -> {
-                // Ya estamos en la pantalla de usuario/login
-                Toast.makeText(this, "Ya estás en la pantalla de inicio de sesión", Toast.LENGTH_SHORT).show();
-            });
-        }
+    /**
+     * Establece el estado de carga del botón de registro
+     */
+    private void setRegisterButtonLoading(boolean loading) {
+        btnRegister.setEnabled(!loading);
+        btnRegister.setText(loading ? "Registrando..." : "Registrarse");
     }
 
     @Override

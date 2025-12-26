@@ -18,10 +18,10 @@ import com.example.snap.ui.components.BottomNavigationComponent;
 import com.example.snap.utils.LanguageHelper;
 
 /**
- * Actividad principal refactorizada usando componentes reutilizables.
- * Toda la lógica compleja se ha dividido en componentes especializados.
+ * Actividad principal de traducción de texto.
+ * Permite traducir texto entre diferentes idiomas.
  */
-public class MainActivity extends BaseActivity {
+public class TextActivity extends BaseActivity {
 
     // Vistas
     private Spinner spinnerInput, spinnerOutput;
