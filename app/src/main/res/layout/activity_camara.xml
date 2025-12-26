@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#5548E5">
+
+    <!-- Header con título y configuración -->
+    <LinearLayout
+        android:id="@+id/headerLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingStart="20dp"
+        android:paddingTop="16dp"
+        android:paddingEnd="20dp"
+        android:paddingBottom="12dp"
+        android:gravity="center_vertical"
+        android:elevation="10dp"
+        android:zAdjustment="top">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="tongi"
+            android:textColor="@android:color/white"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            android:fontFamily="sans-serif-medium"
+            android:shadowColor="#80000000"
+            android:shadowDx="2"
+            android:shadowDy="2"
+            android:shadowRadius="4"/>
+
+        <!--        <ImageButton
+                    android:id="@+id/btnSettings"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@android:drawable/ic_menu_manage"
+                    android:tint="@android:color/white"
+                    android:contentDescription="Configuración" />-->
+    </LinearLayout>
+
+    <!-- Vista de cámara / imagen (PANTALLA COMPLETA) -->
+    <FrameLayout
+        android:id="@+id/cameraContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/headerLayout"
+        android:layout_above="@id/bottomNavbar">
+
+
+        <!-- 1. Vista previa de cámara -->
+        <androidx.camera.view.PreviewView
+            android:id="@+id/cameraPreview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <!-- 2. ImageView para foto estática (Galería/Captura) -->
+        <ImageView
+            android:id="@+id/imagePreview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="fitCenter"
+            android:background="#000000"
+            android:visibility="gone"
+            android:contentDescription="Vista previa de imagen" />
+
+        <!-- 3. CAPA DE DIBUJO (CAJAS PEQUEÑAS) -->
+        <com.example.snap.camara.GraphicOverlay
+            android:id="@+id/graphicOverlay"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <!-- 4. TEXTO GRANDE CENTRAL -->
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:fillViewport="true"
+            android:padding="24dp">
+
+            <TextView
+                android:id="@+id/tvTranslatedResult"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textColor="#FFFFFF"
+                android:textSize="28sp"
+                android:textStyle="bold"
+                android:shadowColor="#000000"
+                android:shadowDx="4"
+                android:shadowDy="4"
+                android:shadowRadius="8"
+                android:background="#99000000"
+                android:padding="20dp"
+                android:visibility="gone"
+                tools:text="TEXTO TRADUCIDO AQUÍ EN GRANDE"
+                tools:visibility="visible"/>
+        </ScrollView>
+
+        <!-- Icono de galería (placeholder) -->
+        <ImageView
+            android:id="@+id/iconGallery"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_gravity="center"
+            android:src="@android:drawable/ic_menu_gallery"
+            android:tint="#757575"
+            android:alpha="0.4"
+            android:visibility="gone"
+            android:contentDescription="Seleccionar imagen" />
+
+        <!-- Sombra superior -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="180dp"
+            android:background="@drawable/gradient_top"
+            android:layout_gravity="top" />
+
+        <!-- Componente: LanguageSelector (Incluido) -->
+        <com.example.snap.components.LanguageSelector
+            android:id="@+id/languageSelector"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top" />
+
+
+        <!-- Botones Flotantes -->
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/btnCapture"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|center_horizontal"
+            android:layout_marginBottom="32dp"
+            android:src="@android:drawable/ic_menu_camera"
+            app:tint="@android:color/white"
+            app:backgroundTint="#5548E5"
+            app:fabSize="normal"
+            app:elevation="8dp"
+            android:visibility="gone"
+            android:contentDescription="Capturar" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/btnGallery"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_marginEnd="20dp"
+            android:layout_marginBottom="32dp"
+            android:src="@android:drawable/ic_menu_gallery"
+            app:tint="@android:color/white"
+            app:backgroundTint="#5548E5"
+            app:fabSize="normal"
+            app:elevation="8dp"
+            android:contentDescription="Galería" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/btnRefresh"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|start"
+            android:layout_marginStart="20dp"
+            android:layout_marginBottom="32dp"
+            android:src="@android:drawable/ic_menu_rotate"
+            app:tint="@android:color/white"
+            app:backgroundTint="#5548E5"
+            app:fabSize="mini"
+            app:elevation="8dp"
+            android:visibility="gone"
+            android:contentDescription="Volver" />
+
+    </FrameLayout>
+
+    <!-- Componente: BottomNavbar (Incluido) -->
+    <include
+        android:id="@+id/bottomNavbar"
+        layout="@layout/layout_bottom_navbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true" />
+
+</RelativeLayout>
