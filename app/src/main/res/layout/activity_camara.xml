@@ -122,7 +122,7 @@
             android:layout_gravity="top" />
 
         <!-- Componente: LanguageSelector (Incluido) -->
-        <com.example.snap.components.LanguageSelector
+        <com.example.snap.ui.components.LanguageSelector
             android:id="@+id/languageSelector"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -178,7 +178,7 @@
     <!-- Componente: BottomNavbar (Incluido) -->
     <include
         android:id="@+id/bottomNavbar"
-        layout="@layout/layout_bottom_navbar"
+        layout="@layout/layout_bottom_navigation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true" />

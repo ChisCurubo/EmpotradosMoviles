@@ -21,8 +21,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Actividad de estadísticas refactorizada usando componentes reutilizables.
- * Muestra el historial y favoritos del usuario de forma organizada.
+ * Actividad de estadísticas refactorizada.
+ * Utiliza BottomNavigationComponent para la navegación.
  */
 public class StatisticsActivity extends BaseActivity {
 
@@ -38,24 +38,16 @@ public class StatisticsActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_statistics);
 
-        // Inicializar vistas
         initializeViews();
-        
-        // Configurar componentes
         setupComponents();
         
-        // Si no hay usuario, mostrar opciones de login, pero permitir navegar
         if (!isUserLoggedIn()) {
             showLoginPrompt();
         } else {
-            // Cargar datos solo si hay sesión
             loadStatistics();
         }
     }
 
-    /**
-     * Inicializa las vistas de la actividad
-     */
     private void initializeViews() {
         tvUserEmail = findViewById(R.id.tvUserEmail);
         tvFavoriteLangs = findViewById(R.id.tvFavoriteLangs);
@@ -63,7 +55,6 @@ public class StatisticsActivity extends BaseActivity {
         rvFavorites = findViewById(R.id.rvFavorites);
         btnLogout = findViewById(R.id.btnLogout);
 
-        // Configurar UI según estado de sesión
         if (isUserLoggedIn()) {
             tvUserEmail.setText(getCurrentUser());
             btnLogout.setVisibility(View.VISIBLE);
@@ -74,21 +65,16 @@ public class StatisticsActivity extends BaseActivity {
         }
     }
 
-    /**
-     * Configura los componentes de la pantalla
-     */
     private void setupComponents() {
-        // Configurar RecyclerView para historial
+        // RecyclerViews
         historyAdapter = new HistoryAdapter(new ArrayList<>());
         rvHistory.setLayoutManager(new LinearLayoutManager(this));
         rvHistory.setAdapter(historyAdapter);
         
-        // Configurar RecyclerView para favoritos
         favoritesAdapter = new FavoritesAdapter(new ArrayList<>());
         rvFavorites.setLayoutManager(new LinearLayoutManager(this));
         rvFavorites.setAdapter(favoritesAdapter);
         
-        // Configurar listener para eliminar favoritos
         favoritesAdapter.setOnFavoriteActionListener(new FavoritesAdapter.OnFavoriteActionListener() {
             @Override
             public void onFavoriteClick(Favorite favorite) {
@@ -102,7 +88,7 @@ public class StatisticsActivity extends BaseActivity {
             }
         });
 
-        // Configurar botón de logout/login
+        // Botón Logout
         btnLogout.setOnClickListener(v -> {
             if (isUserLoggedIn()) {
                 performLogout();
@@ -114,44 +100,19 @@ public class StatisticsActivity extends BaseActivity {
         // Configurar navegación
         bottomNavigation = findViewById(R.id.bottomNavigation);
         if (bottomNavigation != null) {
-            bottomNavigation.setNavigationListener(new BottomNavigationComponent.NavigationListener() {
-                @Override
-                public void onTextoClicked() {
-                    navigationManager.navigateToMain();
-                    finish();
-                }
-
-                @Override
-                public void onCamaraClicked() {
-                    navigationManager.navigateToMain();
-                    finish();
-                }
-
-                @Override
-                public void onAudioClicked() {
-                    showMessage("Modo Audio (Próximamente)");
-                }
-
-                @Override
-                public void onUsuarioClicked() {
-                    showMessage("Ya estás en tu perfil");
-                }
-            });
             bottomNavigation.setActiveScreen("usuario");
             bottomNavigation.updateUserButtonState();
+            
+            // No es necesario añadir listeners extra, el componente ya navega 
+            // y cierra la actividad actual automáticamente.
         }
     }
 
-    /**
-     * Carga las estadísticas del usuario
-     */
     private void loadStatistics() {
         String userId = getCurrentUser();
         
-        // Cargar historial (últimas 10 traducciones)
         viewModel.getHistoryByUserId(userId).observe(this, historyList -> {
             if (historyList != null && !historyList.isEmpty()) {
-                // Limitar a las últimas 10
                 List<TranslationHistory> last10 = historyList.size() > 10 
                     ? historyList.subList(0, 10) 
                     : historyList;
@@ -161,20 +122,15 @@ public class StatisticsActivity extends BaseActivity {
             }
         });
 
-        // Cargar favoritos
         viewModel.getFavoritesByUser(userId).observe(this, favorites -> {
             displayFavorites(favorites);
         });
 
-        // Cargar idiomas favoritos (más usados en historial)
         viewModel.getHistoryByUserId(userId).observe(this, historyList -> {
             displayFavoriteLanguages(historyList);
         });
     }
 
-    /**
-     * Muestra los favoritos del usuario
-     */
     private void displayFavorites(List<Favorite> favorites) {
         if (favorites != null && !favorites.isEmpty()) {
             favoritesAdapter.updateData(favorites);
@@ -183,9 +139,6 @@ public class StatisticsActivity extends BaseActivity {
         }
     }
 
-    /**
-     * Muestra los idiomas más utilizados
-     */
     private void displayFavoriteLanguages(List<TranslationHistory> historyList) {
         if (historyList != null && !historyList.isEmpty()) {
             Map<String, Integer> langCount = new HashMap<>();
@@ -195,7 +148,6 @@ public class StatisticsActivity extends BaseActivity {
                 langCount.put(pair, langCount.getOrDefault(pair, 0) + 1);
             }
             
-            // Encontrar los 3 más usados
             List<Map.Entry<String, Integer>> sortedList = new ArrayList<>(langCount.entrySet());
             sortedList.sort((a, b) -> b.getValue().compareTo(a.getValue()));
             
@@ -216,9 +168,6 @@ public class StatisticsActivity extends BaseActivity {
         }
     }
     
-    /**
-     * Muestra un mensaje cuando no hay sesión activa
-     */
     private void showLoginPrompt() {
         tvFavoriteLangs.setText("Inicia sesión para ver tus idiomas favoritos");
         favoritesAdapter.updateData(new ArrayList<>());

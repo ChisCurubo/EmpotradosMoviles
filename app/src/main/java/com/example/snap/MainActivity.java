@@ -68,12 +68,9 @@ public class MainActivity extends BaseActivity {
      * Inicializa las vistas de la actividad
      */
     private void initializeViews() {
-        spinnerInput = findViewById(R.id.spinnerInput);
-        spinnerOutput = findViewById(R.id.spinnerOutput);
         etInput = findViewById(R.id.etInput);
         tvOutput = findViewById(R.id.tvOutput);
         btnClear = findViewById(R.id.btnClear);
-        btnSwap = findViewById(R.id.btnSwap);
         btnVolume = findViewById(R.id.btnVolume);
         btnStar = findViewById(R.id.btnStar);
         btnCopy = findViewById(R.id.btnCopy);
@@ -192,7 +189,8 @@ public class MainActivity extends BaseActivity {
 
                 @Override
                 public void onCamaraClicked() {
-                    showMessage("Modo Cámara (Próximamente)");
+                    btnClear.performClick();
+                    showMessage("Modo Cámara");
                 }
 
                 @Override

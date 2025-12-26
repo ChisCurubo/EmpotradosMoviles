@@ -7,6 +7,7 @@ import android.content.Intent;
 import com.example.snap.TextActivity;
 import com.example.snap.LoginActivity;
 import com.example.snap.StatisticsActivity;
+import com.example.snap.camara.Camara;
 
 /**
  * Gestiona la navegación entre pantallas.
@@ -48,6 +49,18 @@ public class NavigationManager {
         if (clearStack && context instanceof Activity) {
             ((Activity) context).finish();
         }
+    }
+
+    /**
+     * Navega específicamente a la pantalla de cámara
+     */
+    public void navigateToCamera() {
+        Intent intent = new Intent(context, Camara.class);
+        String userId = sessionManager.getActiveUser();
+        if (userId != null) {
+            intent.putExtra("USER_ID", userId);
+        }
+        context.startActivity(intent);
     }
     
     /**

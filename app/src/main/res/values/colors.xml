@@ -6,4 +6,6 @@
     <color name="black">#000000</color>
     <color name="text_gray">#757575</color>
     <color name="card_border">#E0E0E0</color>
+    <color name="icon_gray">#424242</color>
+
 </resources>

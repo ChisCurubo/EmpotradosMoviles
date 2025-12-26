@@ -17,9 +17,11 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:layout_marginEnd="6dp"
+        android:layout_marginBottom="4dp"
         app:cardCornerRadius="16dp"
         app:cardElevation="6dp"
         app:cardBackgroundColor="@android:color/white">
+        android:background="@drawable/bg_outline_box">
         <Spinner
             android:id="@+id/spinnerSourceLanguage"
             android:layout_width="match_parent"
@@ -35,15 +37,17 @@
         android:layout_width="48dp"
         android:layout_height="48dp"
         app:cardCornerRadius="24dp"
+        android:layout_marginBottom="5dp"
         app:cardElevation="6dp"
         app:cardBackgroundColor="@android:color/white">
+        android:background="@drawable/bg_outline_box">
         <ImageButton
             android:id="@+id/btnSwapLanguages"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@android:drawable/ic_menu_revert"
-            android:tint="#5548E5"
+            android:tint="@color/purple_header"
             android:contentDescription="Intercambiar" />
     </androidx.cardview.widget.CardView>
 
@@ -53,9 +57,11 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:layout_marginStart="6dp"
+        android:layout_marginBottom="4dp"
         app:cardCornerRadius="16dp"
         app:cardElevation="6dp"
         app:cardBackgroundColor="@android:color/white">
+        android:background="@drawable/bg_outline_box">
         <Spinner
             android:id="@+id/spinnerTargetLanguage"
             android:layout_width="match_parent"

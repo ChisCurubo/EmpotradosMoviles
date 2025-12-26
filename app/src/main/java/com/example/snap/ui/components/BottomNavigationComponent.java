@@ -1,30 +1,30 @@
 package com.example.snap.ui.components;
 
+import android.app.Activity;
 import android.content.Context;
+import android.graphics.Color;
 import android.util.AttributeSet;
-import android.view.LayoutInflater;
-import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 
 import com.example.snap.R;
 import com.example.snap.utils.NavigationManager;
 import com.example.snap.utils.SessionManager;
 import com.google.android.material.button.MaterialButton;
 
-/**
- * Componente reutilizable para la barra de navegación inferior.
- * Puede ser usado en cualquier Activity para proporcionar navegación consistente.
- */
 public class BottomNavigationComponent extends LinearLayout {
     
     private MaterialButton btnTexto, btnCamara, btnAudio, btnUsuario;
     private NavigationManager navigationManager;
     private SessionManager sessionManager;
     private NavigationListener navigationListener;
-    private String currentScreen;
+    private String currentScreen = "";
+    
+    private int activeColor;
+    private int inactiveColor;
     
     public interface NavigationListener {
         void onTextoClicked();
@@ -49,128 +49,116 @@ public class BottomNavigationComponent extends LinearLayout {
     }
     
     private void init(Context context) {
-        // NO inflar el layout aquí - el componente YA contiene los hijos del XML
-        // Solo inicializar managers
         navigationManager = new NavigationManager(context);
         sessionManager = new SessionManager(context);
+        
+        activeColor = ContextCompat.getColor(context, android.R.color.holo_blue_dark);
+        inactiveColor = Color.GRAY;
     }
     
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
-        // Inicializar vistas después de que el XML se haya inflado completamente
+        
         btnTexto = findViewById(R.id.nav_texto);
         btnCamara = findViewById(R.id.nav_camara);
         btnAudio = findViewById(R.id.nav_audio);
         btnUsuario = findViewById(R.id.nav_usuario);
         
-        // Configurar listeners por defecto
-        setupDefaultListeners();
+        setupListeners();
     }
     
-    /**
-     * Configura los listeners por defecto para navegación
-     */
-    private void setupDefaultListeners() {
-        btnTexto.setOnClickListener(v -> {
-            if (navigationListener != null) {
-                navigationListener.onTextoClicked();
-            } else {
-                navigationManager.navigateToMain();
+    private void setupListeners() {
+        btnTexto.setOnClickListener(v -> navigateTo("texto"));
+        btnCamara.setOnClickListener(v -> navigateTo("camara"));
+        btnAudio.setOnClickListener(v -> navigateTo("audio"));
+        btnUsuario.setOnClickListener(v -> navigateTo("usuario"));
+    }
+
+    private void navigateTo(String targetScreen) {
+        // 1. Si ya estamos en la pantalla, no hacemos nada
+        if (targetScreen.equals(currentScreen)) {
+            return;
+        }
+
+        // 2. Si hay un listener personalizado, lo usamos (por si acaso alguien quiere overridear)
+        if (navigationListener != null) {
+            switch (targetScreen) {
+                case "texto": navigationListener.onTextoClicked(); break;
+                case "camara": navigationListener.onCamaraClicked(); break;
+                case "audio": navigationListener.onAudioClicked(); break;
+                case "usuario": navigationListener.onUsuarioClicked(); break;
             }
-        });
-        
-        btnCamara.setOnClickListener(v -> {
-            if (navigationListener != null) {
-                navigationListener.onCamaraClicked();
-            } else {
-                // Por defecto redirige a texto
+            return;
+        }
+
+        // 3. Lógica AUTOMÁTICA (Aquí está la magia)
+        switch (targetScreen) {
+            case "texto":
                 navigationManager.navigateToMain();
-                Toast.makeText(getContext(), "Modo Cámara (Próximamente)", Toast.LENGTH_SHORT).show();
-            }
-        });
-        
-        btnAudio.setOnClickListener(v -> {
-            if (navigationListener != null) {
-                navigationListener.onAudioClicked();
-            } else {
+                finishCurrentActivity();
+                break;
+            case "camara":
+                navigationManager.navigateToCamera();
+                finishCurrentActivity();
+                break;
+            case "audio":
                 Toast.makeText(getContext(), "Modo Audio (Próximamente)", Toast.LENGTH_SHORT).show();
-            }
-        });
-        
-        btnUsuario.setOnClickListener(v -> {
-            if (navigationListener != null) {
-                navigationListener.onUsuarioClicked();
-            } else {
-                handleDefaultUserNavigation();
-            }
-        });
+                break;
+            case "usuario":
+                navigationManager.navigateToStatistics();
+                // Nota: StatisticsActivity maneja si debe ir a login internamente
+                finishCurrentActivity(); 
+                break;
+        }
+    }
+
+    /**
+     * Cierra la actividad actual para simular navegación tipo tabs
+     */
+    private void finishCurrentActivity() {
+        if (getContext() instanceof Activity) {
+            ((Activity) getContext()).finish();
+        }
     }
     
-    /**
-     * Maneja la navegación por defecto del botón usuario
-     */
-    private void handleDefaultUserNavigation() {
-        // Navegar a estadísticas siempre, sin requerir login
-        navigationManager.navigateToStatistics();
+    public void setActiveScreen(String screenName) {
+        this.currentScreen = screenName;
+        updateButtonsVisuals();
     }
     
-    /**
-     * Establece un listener personalizado para la navegación
-     */
+    private void updateButtonsVisuals() {
+        setButtonState(btnTexto, false);
+        setButtonState(btnCamara, false);
+        setButtonState(btnAudio, false);
+        setButtonState(btnUsuario, false);
+
+        switch (currentScreen) {
+            case "texto": setButtonState(btnTexto, true); break;
+            case "camara": setButtonState(btnCamara, true); break;
+            case "audio": setButtonState(btnAudio, true); break;
+            case "usuario": setButtonState(btnUsuario, true); break;
+        }
+    }
+    
+    private void setButtonState(MaterialButton btn, boolean isActive) {
+        if (btn == null) return;
+        int color = isActive ? activeColor : inactiveColor;
+        btn.setTextColor(color);
+        btn.setIconTint(android.content.res.ColorStateList.valueOf(color));
+    }
+
     public void setNavigationListener(NavigationListener listener) {
         this.navigationListener = listener;
     }
     
-    /**
-     * Marca una pantalla como activa
-     */
-    public void setActiveScreen(String screenName) {
-        this.currentScreen = screenName;
-        // Aquí podrías agregar lógica para resaltar el botón activo
-        resetButtonStates();
-        
-        switch (screenName) {
-            case "texto":
-                // Resaltar botón texto si quieres
-                break;
-            case "camara":
-                // Resaltar botón cámara
-                break;
-            case "audio":
-                // Resaltar botón audio
-                break;
-            case "usuario":
-                // Resaltar botón usuario
-                break;
-        }
+    public NavigationManager getNavigationManager() {
+        return navigationManager;
     }
     
-    /**
-     * Resetea el estado visual de todos los botones
-     */
-    private void resetButtonStates() {
-        // Puedes agregar lógica para resetear colores/estilos
-    }
-    
-    /**
-     * Habilita o deshabilita la navegación
-     */
-    public void setNavigationEnabled(boolean enabled) {
-        btnTexto.setEnabled(enabled);
-        btnCamara.setEnabled(enabled);
-        btnAudio.setEnabled(enabled);
-        btnUsuario.setEnabled(enabled);
-    }
-    
-    /**
-     * Actualiza el estado del botón usuario basado en la sesión
-     */
     public void updateUserButtonState() {
-        if (sessionManager.isLoggedIn()) {
-            btnUsuario.setText("Perfil");
-        } else {
-            btnUsuario.setText("Usuario");
+        if (btnUsuario != null) {
+            btnUsuario.setText(sessionManager.isLoggedIn() ? "Perfil" : "Usuario");
         }
     }
 }
