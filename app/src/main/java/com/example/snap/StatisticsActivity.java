@@ -5,6 +5,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -28,7 +29,7 @@ public class StatisticsActivity extends BaseActivity {
 
     private TextView tvUserEmail, tvFavoriteLangs;
     private RecyclerView rvHistory, rvFavorites;
-    private Button btnLogout;
+    private Button btnLogout, btnClearHistory, btnClearFavorites;
     private HistoryAdapter historyAdapter;
     private FavoritesAdapter favoritesAdapter;
     private BottomNavigationComponent bottomNavigation;
@@ -54,14 +55,20 @@ public class StatisticsActivity extends BaseActivity {
         rvHistory = findViewById(R.id.rvHistory);
         rvFavorites = findViewById(R.id.rvFavorites);
         btnLogout = findViewById(R.id.btnLogout);
+        btnClearHistory = findViewById(R.id.btnClearHistory);
+        btnClearFavorites = findViewById(R.id.btnClearFavorites);
 
         if (isUserLoggedIn()) {
             tvUserEmail.setText(getCurrentUser());
             btnLogout.setVisibility(View.VISIBLE);
+            btnClearHistory.setVisibility(View.VISIBLE);
+            btnClearFavorites.setVisibility(View.VISIBLE);
         } else {
             tvUserEmail.setText("Usuario no identificado");
             btnLogout.setText("Iniciar Sesión");
             btnLogout.setVisibility(View.VISIBLE);
+            btnClearHistory.setVisibility(View.GONE);
+            btnClearFavorites.setVisibility(View.GONE);
         }
     }
 
@@ -96,6 +103,12 @@ public class StatisticsActivity extends BaseActivity {
                 navigationManager.navigateToLogin();
             }
         });
+        
+        // Botón Borrar todo el historial
+        btnClearHistory.setOnClickListener(v -> showClearHistoryDialog());
+        
+        // Botón Borrar todos los favoritos
+        btnClearFavorites.setOnClickListener(v -> showClearFavoritesDialog());
 
         // Configurar navegación
         bottomNavigation = findViewById(R.id.bottomNavigation);
@@ -172,5 +185,37 @@ public class StatisticsActivity extends BaseActivity {
         tvFavoriteLangs.setText("Inicia sesión para ver tus idiomas favoritos");
         favoritesAdapter.updateData(new ArrayList<>());
         showMessage("Inicia sesión para ver tu historial y estadísticas");
+    }
+    
+    private void showClearHistoryDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle("Borrar historial")
+                .setMessage("¿Desea borrar todo el historial?")
+                .setPositiveButton("Sí", (dialog, which) -> {
+                    String userId = getCurrentUser();
+                    if (userId != null) {
+                        viewModel.clearAllHistory(userId);
+                        showMessage("Historial borrado");
+                        historyAdapter.updateData(new ArrayList<>());
+                    }
+                })
+                .setNegativeButton("No", null)
+                .show();
+    }
+    
+    private void showClearFavoritesDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle("Borrar favoritos")
+                .setMessage("¿Desea borrar todos los favoritos?")
+                .setPositiveButton("Sí", (dialog, which) -> {
+                    String userId = getCurrentUser();
+                    if (userId != null) {
+                        viewModel.clearAllFavorites(userId);
+                        showMessage("Favoritos borrados");
+                        favoritesAdapter.updateData(new ArrayList<>());
+                    }
+                })
+                .setNegativeButton("No", null)
+                .show();
     }
 }

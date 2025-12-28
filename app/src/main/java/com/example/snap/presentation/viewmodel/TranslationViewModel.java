@@ -141,6 +141,18 @@ public class TranslationViewModel extends AndroidViewModel {
             favoriteRepository.delete(favorite);
         }
     }
+    
+    public void clearAllHistory(String userId) {
+        if (userId != null) {
+            historyRepository.clearAllHistory(userId);
+        }
+    }
+    
+    public void clearAllFavorites(String userId) {
+        if (userId != null) {
+            favoriteRepository.deleteAllByUser(userId);
+        }
+    }
 
     private void showLoading() {
         currentTranslation.setValue("Traduciendo...");

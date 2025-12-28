@@ -34,4 +34,9 @@ public class TranslationHistoryRepository {
     public void clearHistory(String userId) {
         executorService.execute(() -> dao.deleteHistoryByUser(userId));
     }
+    
+    // Borrar todo el historial de un usuario
+    public void clearAllHistory(String userId) {
+        executorService.execute(() -> dao.deleteHistoryByUser(userId));
+    }
 }

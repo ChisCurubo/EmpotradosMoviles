@@ -45,4 +45,11 @@ public class FavoriteRepository {
     public LiveData<List<String>> getFavoriteLanguagesByUser(String userId) {
         return favoriteDao.getFavoriteLanguagesByUser(userId);
     }
+    
+    // Borrar todos los favoritos de un usuario
+    public void deleteAllByUser(String userId) {
+        executorService.execute(() -> {
+            favoriteDao.deleteByUser(userId);
+        });
+    }
 }
