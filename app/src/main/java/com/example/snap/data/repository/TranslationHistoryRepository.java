@@ -24,7 +24,22 @@ public class TranslationHistoryRepository {
     }
 
     public void insert(TranslationHistory history) {
-        executorService.execute(() -> dao.insert(history));
+        executorService.execute(() -> {
+            // Verificar si ya existe un registro muy similar en los últimos 2 segundos
+            int duplicates = dao.countRecentDuplicates(
+                history.getUserId(),
+                history.getSourceText(),
+                history.getTranslatedText(),
+                history.getSourceLanguage(),
+                history.getTargetLanguage(),
+                System.currentTimeMillis()
+            );
+            
+            // Solo insertar si no hay duplicados recientes
+            if (duplicates == 0) {
+                dao.insert(history);
+            }
+        });
     }
 
     public void delete(TranslationHistory history) {

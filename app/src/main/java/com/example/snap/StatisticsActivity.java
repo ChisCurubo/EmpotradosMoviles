@@ -144,17 +144,17 @@ public class StatisticsActivity extends BaseActivity {
                     ? historyList.subList(0, 10) 
                     : historyList;
                 historyAdapter.updateData(last10);
+                
+                // También actualizar los idiomas favoritos con el mismo historial
+                displayFavoriteLanguages(historyList);
             } else {
                 historyAdapter.updateData(new ArrayList<>());
+                tvFavoriteLangs.setText("Aún no tienes traducciones");
             }
         });
 
         viewModel.getFavoritesByUser(userId).observe(this, favorites -> {
             displayFavorites(favorites);
-        });
-
-        viewModel.getHistoryByUserId(userId).observe(this, historyList -> {
-            displayFavoriteLanguages(historyList);
         });
     }
 
@@ -206,16 +206,27 @@ public class StatisticsActivity extends BaseActivity {
         if (userId == null) return;
         
         // Capturar el historial actual antes de mostrar el diálogo
-        List<TranslationHistory> currentHistory = new ArrayList<>();
-        viewModel.getHistoryByUserId(userId).observe(this, historyList -> {
-            if (historyList != null && !currentHistory.isEmpty() == false) {
-                // Solo capturar una vez
-                if (currentHistory.isEmpty()) {
+        final List<TranslationHistory> currentHistory = new ArrayList<>();
+        
+        // Usar observeForever para capturar los datos una sola vez
+        androidx.lifecycle.Observer<List<TranslationHistory>> observer = new androidx.lifecycle.Observer<List<TranslationHistory>>() {
+            @Override
+            public void onChanged(List<TranslationHistory> historyList) {
+                if (historyList != null) {
                     currentHistory.addAll(historyList);
                 }
+                // Remover el observer inmediatamente después de capturar los datos
+                viewModel.getHistoryByUserId(userId).removeObserver(this);
+                
+                // Mostrar el diálogo después de capturar los datos
+                showClearHistoryDialogWithData(userId, currentHistory);
             }
-        });
+        };
         
+        viewModel.getHistoryByUserId(userId).observeForever(observer);
+    }
+    
+    private void showClearHistoryDialogWithData(String userId, List<TranslationHistory> currentHistory) {
         new AlertDialog.Builder(this)
                 .setTitle("Borrar historial")
                 .setMessage("¿Desea borrar todo el historial?")
@@ -243,16 +254,27 @@ public class StatisticsActivity extends BaseActivity {
         if (userId == null) return;
         
         // Capturar los favoritos actuales antes de mostrar el diálogo
-        List<Favorite> currentFavorites = new ArrayList<>();
-        viewModel.getFavoritesByUser(userId).observe(this, favorites -> {
-            if (favorites != null && !currentFavorites.isEmpty() == false) {
-                // Solo capturar una vez
-                if (currentFavorites.isEmpty()) {
+        final List<Favorite> currentFavorites = new ArrayList<>();
+        
+        // Usar observeForever para capturar los datos una sola vez
+        androidx.lifecycle.Observer<List<Favorite>> observer = new androidx.lifecycle.Observer<List<Favorite>>() {
+            @Override
+            public void onChanged(List<Favorite> favorites) {
+                if (favorites != null) {
                     currentFavorites.addAll(favorites);
                 }
+                // Remover el observer inmediatamente después de capturar los datos
+                viewModel.getFavoritesByUser(userId).removeObserver(this);
+                
+                // Mostrar el diálogo después de capturar los datos
+                showClearFavoritesDialogWithData(userId, currentFavorites);
             }
-        });
+        };
         
+        viewModel.getFavoritesByUser(userId).observeForever(observer);
+    }
+    
+    private void showClearFavoritesDialogWithData(String userId, List<Favorite> currentFavorites) {
         new AlertDialog.Builder(this)
                 .setTitle("Borrar favoritos")
                 .setMessage("¿Desea borrar todos los favoritos?")
