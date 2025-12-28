@@ -78,6 +78,19 @@ public class StatisticsActivity extends BaseActivity {
         rvHistory.setLayoutManager(new LinearLayoutManager(this));
         rvHistory.setAdapter(historyAdapter);
         
+        // Configurar listener del historial
+        historyAdapter.setOnHistoryActionListener(new HistoryAdapter.OnHistoryActionListener() {
+            @Override
+            public void onHistoryItemClick(TranslationHistory history) {
+                showMessage(history.getSourceText() + " → " + history.getTranslatedText());
+            }
+
+            @Override
+            public void onHistoryItemDelete(TranslationHistory history) {
+                showDeleteHistoryDialog(history);
+            }
+        });
+        
         favoritesAdapter = new FavoritesAdapter(new ArrayList<>());
         rvFavorites.setLayoutManager(new LinearLayoutManager(this));
         rvFavorites.setAdapter(favoritesAdapter);
@@ -90,8 +103,7 @@ public class StatisticsActivity extends BaseActivity {
 
             @Override
             public void onFavoriteDelete(Favorite favorite) {
-                viewModel.deleteFavorite(favorite);
-                showMessage("Favorito eliminado");
+                showDeleteFavoriteDialog(favorite);
             }
         });
 
@@ -214,6 +226,30 @@ public class StatisticsActivity extends BaseActivity {
                         showMessage("Favoritos borrados");
                         favoritesAdapter.updateData(new ArrayList<>());
                     }
+                })
+                .setNegativeButton("No", null)
+                .show();
+    }
+    
+    private void showDeleteHistoryDialog(TranslationHistory history) {
+        new AlertDialog.Builder(this)
+                .setTitle("Borrar del historial")
+                .setMessage("¿Desea borrar esta traducción del historial?")
+                .setPositiveButton("Sí", (dialog, which) -> {
+                    viewModel.deleteHistory(history);
+                    showMessage("Eliminado del historial");
+                })
+                .setNegativeButton("No", null)
+                .show();
+    }
+    
+    private void showDeleteFavoriteDialog(Favorite favorite) {
+        new AlertDialog.Builder(this)
+                .setTitle("Borrar favorito")
+                .setMessage("¿Desea borrar este favorito?")
+                .setPositiveButton("Sí", (dialog, which) -> {
+                    viewModel.deleteFavorite(favorite);
+                    showMessage("Favorito eliminado");
                 })
                 .setNegativeButton("No", null)
                 .show();

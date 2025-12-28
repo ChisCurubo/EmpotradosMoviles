@@ -142,6 +142,12 @@ public class TranslationViewModel extends AndroidViewModel {
         }
     }
     
+    public void deleteHistory(TranslationHistory history) {
+        if (history != null) {
+            historyRepository.delete(history);
+        }
+    }
+    
     public void clearAllHistory(String userId) {
         if (userId != null) {
             historyRepository.clearAllHistory(userId);
