@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name" translatable="false">SnapLingua</string>
+    <string name="entrada">Input</string>
+    <string name="salida">Output</string>
+    <string name="espanol">Spanish</string>
+    <string name="ingles">English</string>
+    <string name="pegar">Paste</string>
+    <string name="copiar">Copy</string>
+    <string name="traducciones_rapidas">Quick translations</string>
+    <string name="texto">Text</string>
+    <string name="camara">Camera</string>
+    <string name="audio">Audio</string>
+    <string name="placeholder_input">Text </string>
+    <string name="placeholder_output">Translation </string>
+    
+    <!-- Settings -->
+    <string name="ajustes">Settings</string>
+    <string name="volver">Back</string>
+    <string name="general">General</string>
+    <string name="idioma_aplicacion">App Language</string>
+    <string name="reproduccion_automatica">Auto Play</string>
+    <string name="reproduccion_automatica_desc">Play translation audio automatically.</string>
+    <string name="guardar_historial">Save History</string>
+    <string name="guardar_historial_desc">Save my translations in local history.</string>
+    <string name="idiomas_predeterminados">Default Languages</string>
+    <string name="idioma_origen">Source Language</string>
+    <string name="idioma_destino">Target Language</string>
+    <string name="seleccionar_idioma_origen">Select Source Language</string>
+    <string name="seleccionar_idioma_destino">Select Target Language</string>
+    <string name="seleccionar_idioma_app">Select App Language</string>
+
+    <!-- Mantener strings antiguos para evitar errores de compilación en otras actividades -->
+    <string name="AddButton">Add</string>
+    <string name="ResultsButton">Go to Results</string>
+    <string name="TextResult">Final result:</string>
+</resources>

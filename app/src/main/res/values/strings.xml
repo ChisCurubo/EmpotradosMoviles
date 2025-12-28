@@ -12,6 +12,22 @@
     <string name="audio">Audio</string>
     <string name="placeholder_input">Texto </string>
     <string name="placeholder_output">Traducción </string>
+    
+    <!-- Settings -->
+    <string name="ajustes">Ajustes</string>
+    <string name="volver">Volver</string>
+    <string name="general">General</string>
+    <string name="idioma_aplicacion">Idioma de la Aplicación</string>
+    <string name="reproduccion_automatica">Reproducción Automática</string>
+    <string name="reproduccion_automatica_desc">Reproducir el audio de la traducción automáticamente.</string>
+    <string name="guardar_historial">Guardar Historial</string>
+    <string name="guardar_historial_desc">Guardar mis traducciones en el historial local.</string>
+    <string name="idiomas_predeterminados">Idiomas Predeterminados</string>
+    <string name="idioma_origen">Idioma Origen</string>
+    <string name="idioma_destino">Idioma Destino</string>
+    <string name="seleccionar_idioma_origen">Seleccionar Idioma Origen</string>
+    <string name="seleccionar_idioma_destino">Seleccionar Idioma Destino</string>
+    <string name="seleccionar_idioma_app">Seleccionar Idioma de la Aplicación</string>
 
     <!-- Mantener strings antiguos para evitar errores de compilación en otras actividades -->
     <string name="AddButton">Add</string>

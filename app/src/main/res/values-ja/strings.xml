@@ -1,4 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">SnapLingua</string>
+    <string name="app_name" translatable="false">SnapLingua</string>
+    <string name="entrada">入力</string>
+    <string name="salida">出力</string>
+    <string name="espanol">スペイン語</string>
+    <string name="ingles">英語</string>
+    <string name="pegar">貼り付け</string>
+    <string name="copiar">コピー</string>
+    <string name="traducciones_rapidas">クイック翻訳</string>
+    <string name="texto">テキスト</string>
+    <string name="camara">カメラ</string>
+    <string name="audio">オーディオ</string>
+    <string name="placeholder_input">テキスト </string>
+    <string name="placeholder_output">翻訳 </string>
+    
+    <!-- Settings -->
+    <string name="ajustes">設定</string>
+    <string name="volver">戻る</string>
+    <string name="general">一般</string>
+    <string name="idioma_aplicacion">アプリの言語</string>
+    <string name="reproduccion_automatica">自動再生</string>
+    <string name="reproduccion_automatica_desc">翻訳の音声を自動的に再生します。</string>
+    <string name="guardar_historial">履歴を保存</string>
+    <string name="guardar_historial_desc">翻訳をローカル履歴に保存します。</string>
+    <string name="idiomas_predeterminados">デフォルト言語</string>
+    <string name="idioma_origen">元の言語</string>
+    <string name="idioma_destino">翻訳先言語</string>
+    <string name="seleccionar_idioma_origen">元の言語を選択</string>
+    <string name="seleccionar_idioma_destino">翻訳先言語を選択</string>
+    <string name="seleccionar_idioma_app">アプリの言語を選択</string>
+
+    <!-- Mantener strings antiguos para evitar errores de compilación en otras actividades -->
+    <string name="AddButton">Add</string>
+    <string name="ResultsButton">Go to Results</string>
+    <string name="TextResult">Final result:</string>
 </resources>

@@ -1,4 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">SnapLingua</string>
+    <string name="app_name" translatable="false">SnapLingua</string>
+    <string name="entrada">입력</string>
+    <string name="salida">출력</string>
+    <string name="espanol">스페인어</string>
+    <string name="ingles">영어</string>
+    <string name="pegar">붙여넣기</string>
+    <string name="copiar">복사</string>
+    <string name="traducciones_rapidas">빠른 번역</string>
+    <string name="texto">텍스트</string>
+    <string name="camara">카메라</string>
+    <string name="audio">오디오</string>
+    <string name="placeholder_input">텍스트 </string>
+    <string name="placeholder_output">번역 </string>
+    
+    <!-- Settings -->
+    <string name="ajustes">설정</string>
+    <string name="volver">뒤로</string>
+    <string name="general">일반</string>
+    <string name="idioma_aplicacion">앱 언어</string>
+    <string name="reproduccion_automatica">자동 재생</string>
+    <string name="reproduccion_automatica_desc">번역 오디오를 자동으로 재생합니다.</string>
+    <string name="guardar_historial">기록 저장</string>
+    <string name="guardar_historial_desc">내 번역을 로컬 기록에 저장합니다.</string>
+    <string name="idiomas_predeterminados">기본 언어</string>
+    <string name="idioma_origen">원본 언어</string>
+    <string name="idioma_destino">대상 언어</string>
+    <string name="seleccionar_idioma_origen">원본 언어 선택</string>
+    <string name="seleccionar_idioma_destino">대상 언어 선택</string>
+    <string name="seleccionar_idioma_app">앱 언어 선택</string>
+
+    <!-- Mantener strings antiguos para evitar errores de compilación en otras actividades -->
+    <string name="AddButton">Add</string>
+    <string name="ResultsButton">Go to Results</string>
+    <string name="TextResult">Final result:</string>
 </resources>

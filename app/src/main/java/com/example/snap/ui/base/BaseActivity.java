@@ -22,6 +22,9 @@ public abstract class BaseActivity extends AppCompatActivity {
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // Aplicar idioma antes de crear la actividad
+        applyAppLanguage();
+        
         super.onCreate(savedInstanceState);
         
         // Inicializar managers compartidos
@@ -85,5 +88,33 @@ public abstract class BaseActivity extends AppCompatActivity {
     protected void performLogout() {
         navigationManager.logoutAndNavigateToMain();
         showMessage("Sesión cerrada - Modo Invitado");
+    }
+    
+    /**
+     * Aplica el idioma de la aplicación según las preferencias del usuario
+     */
+    private void applyAppLanguage() {
+        String userId = getIntent().getStringExtra("USER_ID");
+        if (userId == null) {
+            userId = getSharedPreferences("session_prefs", MODE_PRIVATE).getString("active_user", "guest");
+        }
+        
+        String prefsName = "SnapPrefs_" + userId;
+        android.content.SharedPreferences prefs = getSharedPreferences(prefsName, MODE_PRIVATE);
+        String languageCode = prefs.getString("app_language", "es");
+        
+        java.util.Locale locale;
+        if (languageCode.equals("zh")) {
+            locale = java.util.Locale.SIMPLIFIED_CHINESE;
+        } else if (languageCode.equals("ko")) {
+            locale = java.util.Locale.KOREAN;
+        } else {
+            locale = new java.util.Locale(languageCode);
+        }
+        
+        java.util.Locale.setDefault(locale);
+        android.content.res.Configuration config = new android.content.res.Configuration();
+        config.setLocale(locale);
+        getResources().updateConfiguration(config, getResources().getDisplayMetrics());
     }
 }

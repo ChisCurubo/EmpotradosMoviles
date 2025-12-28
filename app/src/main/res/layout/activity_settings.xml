@@ -21,7 +21,7 @@
             android:layout_height="32dp"
             android:src="@android:drawable/ic_menu_revert"
             app:tint="@android:color/white"
-            android:contentDescription="Volver"
+            android:contentDescription="@string/volver"
             android:clickable="true"
             android:focusable="true"
             android:background="?attr/selectableItemBackgroundBorderless"/>
@@ -29,7 +29,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Ajustes"
+            android:text="@string/ajustes"
             android:textColor="@android:color/white"
             android:textSize="20sp"
             android:textStyle="bold"
@@ -50,7 +50,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="General"
+                android:text="@string/general"
                 android:textColor="#6200EE"
                 android:textStyle="bold"
                 android:layout_marginTop="8dp"
@@ -69,17 +69,50 @@
                     android:orientation="vertical"
                     android:padding="16dp">
 
+                    <LinearLayout
+                        android:id="@+id/containerAppLanguage"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:background="?attr/selectableItemBackground">
+                        
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/idioma_aplicacion"
+                            android:textSize="16sp"
+                            android:textColor="@android:color/black"/>
+
+                        <TextView
+                            android:id="@+id/tvAppLanguage"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/espanol"
+                            android:textSize="14sp"
+                            android:textColor="#757575"
+                            android:layout_marginTop="4dp"/>
+                    </LinearLayout>
+                    
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="#E0E0E0"
+                        android:layout_marginTop="12dp"
+                        android:layout_marginBottom="12dp"/>
+
                     <com.google.android.material.switchmaterial.SwitchMaterial
                         android:id="@+id/switchAutoTts"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Reproducción Automática"
+                        android:text="@string/reproduccion_automatica"
                         android:textSize="16sp"/>
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Reproducir el audio de la traducción automáticamente."
+                        android:text="@string/reproduccion_automatica_desc"
                         android:textSize="12sp"
                         android:textColor="#757575"
                         android:layout_marginTop="4dp"/>
@@ -95,13 +128,13 @@
                         android:id="@+id/switchSaveHistory"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Guardar Historial"
+                        android:text="@string/guardar_historial"
                         android:textSize="16sp"/>
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Guardar mis traducciones en el historial local."
+                        android:text="@string/guardar_historial_desc"
                         android:textSize="12sp"
                         android:textColor="#757575"
                         android:layout_marginTop="4dp"/>
@@ -113,7 +146,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Idiomas Predeterminados"
+                android:text="@string/idiomas_predeterminados"
                 android:textColor="#6200EE"
                 android:textStyle="bold"
                 android:layout_marginTop="8dp"
@@ -144,7 +177,7 @@
                         <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Idioma Origen"
+                            android:text="@string/idioma_origen"
                             android:textSize="16sp"
                             android:textColor="@android:color/black"/>
 
@@ -152,7 +185,7 @@
                             android:id="@+id/tvDefaultSource"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Español"
+                            android:text="@string/espanol"
                             android:textSize="14sp"
                             android:textColor="#757575"
                             android:layout_marginTop="4dp"/>
@@ -177,7 +210,7 @@
                         <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Idioma Destino"
+                            android:text="@string/idioma_destino"
                             android:textSize="16sp"
                             android:textColor="@android:color/black"/>
 
@@ -185,7 +218,7 @@
                             android:id="@+id/tvDefaultTarget"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Inglés"
+                            android:text="@string/ingles"
                             android:textSize="14sp"
                             android:textColor="#757575"
                             android:layout_marginTop="4dp"/>

@@ -1,4 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">SnapLingua</string>
+    <string name="app_name" translatable="false">SnapLingua</string>
+    <string name="entrada">Entrée</string>
+    <string name="salida">Sortie</string>
+    <string name="espanol">Espagnol</string>
+    <string name="ingles">Anglais</string>
+    <string name="pegar">Coller</string>
+    <string name="copiar">Copier</string>
+    <string name="traducciones_rapidas">Traductions rapides</string>
+    <string name="texto">Texte</string>
+    <string name="camara">Caméra</string>
+    <string name="audio">Audio</string>
+    <string name="placeholder_input">Texte </string>
+    <string name="placeholder_output">Traduction </string>
+    
+    <!-- Settings -->
+    <string name="ajustes">Paramètres</string>
+    <string name="volver">Retour</string>
+    <string name="general">Général</string>
+    <string name="idioma_aplicacion">Langue de l\'application</string>
+    <string name="reproduccion_automatica">Lecture automatique</string>
+    <string name="reproduccion_automatica_desc">Lire l\'audio de la traduction automatiquement.</string>
+    <string name="guardar_historial">Enregistrer l\'historique</string>
+    <string name="guardar_historial_desc">Enregistrer mes traductions dans l\'historique local.</string>
+    <string name="idiomas_predeterminados">Langues par défaut</string>
+    <string name="idioma_origen">Langue source</string>
+    <string name="idioma_destino">Langue cible</string>
+    <string name="seleccionar_idioma_origen">Sélectionner la langue source</string>
+    <string name="seleccionar_idioma_destino">Sélectionner la langue cible</string>
+    <string name="seleccionar_idioma_app">Sélectionner la langue de l\'application</string>
+
+    <!-- Mantener strings antiguos para evitar errores de compilación en otras actividades -->
+    <string name="AddButton">Add</string>
+    <string name="ResultsButton">Go to Results</string>
+    <string name="TextResult">Final result:</string>
 </resources>

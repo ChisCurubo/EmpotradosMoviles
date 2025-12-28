@@ -1,4 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">SnapLingua</string>
+    <string name="app_name" translatable="false">SnapLingua</string>
+    <string name="entrada">输入</string>
+    <string name="salida">输出</string>
+    <string name="espanol">西班牙语</string>
+    <string name="ingles">英语</string>
+    <string name="pegar">粘贴</string>
+    <string name="copiar">复制</string>
+    <string name="traducciones_rapidas">快速翻译</string>
+    <string name="texto">文本</string>
+    <string name="camara">相机</string>
+    <string name="audio">音频</string>
+    <string name="placeholder_input">文本 </string>
+    <string name="placeholder_output">翻译 </string>
+    
+    <!-- Settings -->
+    <string name="ajustes">设置</string>
+    <string name="volver">返回</string>
+    <string name="general">常规</string>
+    <string name="idioma_aplicacion">应用语言</string>
+    <string name="reproduccion_automatica">自动播放</string>
+    <string name="reproduccion_automatica_desc">自动播放翻译音频。</string>
+    <string name="guardar_historial">保存历史</string>
+    <string name="guardar_historial_desc">将我的翻译保存在本地历史中。</string>
+    <string name="idiomas_predeterminados">默认语言</string>
+    <string name="idioma_origen">源语言</string>
+    <string name="idioma_destino">目标语言</string>
+    <string name="seleccionar_idioma_origen">选择源语言</string>
+    <string name="seleccionar_idioma_destino">选择目标语言</string>
+    <string name="seleccionar_idioma_app">选择应用语言</string>
+
+    <!-- Mantener strings antiguos para evitar errores de compilación en otras actividades -->
+    <string name="AddButton">Add</string>
+    <string name="ResultsButton">Go to Results</string>
+    <string name="TextResult">Final result:</string>
 </resources>

@@ -1,4 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">SnapLingua</string>
+    <string name="app_name" translatable="false">SnapLingua</string>
+    <string name="entrada">Entrada</string>
+    <string name="salida">Saída</string>
+    <string name="espanol">Espanhol</string>
+    <string name="ingles">Inglês</string>
+    <string name="pegar">Colar</string>
+    <string name="copiar">Copiar</string>
+    <string name="traducciones_rapidas">Traduções rápidas</string>
+    <string name="texto">Texto</string>
+    <string name="camara">Câmera</string>
+    <string name="audio">Áudio</string>
+    <string name="placeholder_input">Texto </string>
+    <string name="placeholder_output">Tradução </string>
+    
+    <!-- Settings -->
+    <string name="ajustes">Configurações</string>
+    <string name="volver">Voltar</string>
+    <string name="general">Geral</string>
+    <string name="idioma_aplicacion">Idioma do aplicativo</string>
+    <string name="reproduccion_automatica">Reprodução automática</string>
+    <string name="reproduccion_automatica_desc">Reproduzir o áudio da tradução automaticamente.</string>
+    <string name="guardar_historial">Salvar histórico</string>
+    <string name="guardar_historial_desc">Salvar minhas traduções no histórico local.</string>
+    <string name="idiomas_predeterminados">Idiomas padrão</string>
+    <string name="idioma_origen">Idioma de origem</string>
+    <string name="idioma_destino">Idioma de destino</string>
+    <string name="seleccionar_idioma_origen">Selecionar idioma de origem</string>
+    <string name="seleccionar_idioma_destino">Selecionar idioma de destino</string>
+    <string name="seleccionar_idioma_app">Selecionar idioma do aplicativo</string>
+
+    <!-- Mantener strings antiguos para evitar errores de compilación en otras actividades -->
+    <string name="AddButton">Add</string>
+    <string name="ResultsButton">Go to Results</string>
+    <string name="TextResult">Final result:</string>
 </resources>
