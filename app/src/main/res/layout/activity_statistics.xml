@@ -31,12 +31,29 @@
                     android:padding="16dp"
                     android:orientation="vertical">
 
-                    <TextView
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Mi Perfil"
-                        android:textStyle="bold"
-                        android:textSize="18sp"/>
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+                        
+                         <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Mi Perfil"
+                            android:textStyle="bold"
+                            android:textSize="18sp"/>
+
+                        <ImageButton
+                            android:id="@+id/btnSettings"
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:src="@android:drawable/ic_menu_preferences"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            app:tint="#757575"
+                            android:contentDescription="Ajustes"/>
+                    </LinearLayout>
 
                     <TextView
                         android:id="@+id/tvUserEmail"

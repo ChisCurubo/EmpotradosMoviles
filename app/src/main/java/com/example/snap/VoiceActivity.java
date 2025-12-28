@@ -132,8 +132,21 @@ public class VoiceActivity extends BaseActivity implements TextToSpeech.OnInitLi
                 tvResult.setText(translatedText);
 
                 // Si no es mensaje de error ni "Traduciendo...", lo leemos automáticamente
+                // PERO solo si la preferencia está activada
                 if (!translatedText.startsWith("Error") && !translatedText.equals("Traduciendo...")) {
-                    speakTranslatedText();
+
+                    String currentUser = getCurrentUser();
+                    if (currentUser == null)
+                        currentUser = "guest";
+
+                    android.content.SharedPreferences prefs = getSharedPreferences(
+                            com.example.snap.SettingsActivity.PREFS_NAME + "_" + currentUser, MODE_PRIVATE);
+                    boolean shouldSpeak = prefs.getBoolean(com.example.snap.SettingsActivity.KEY_AUTO_TTS, true);
+
+                    if (shouldSpeak) {
+                        speakTranslatedText();
+                    }
+
                     showCustomToast("Traducción completada", android.R.drawable.ic_input_add);
                 } else if (translatedText.startsWith("Error")) {
                     showCustomToast("Error al traducir", android.R.drawable.ic_delete);
