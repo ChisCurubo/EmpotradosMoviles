@@ -27,6 +27,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.example.snap.R;
+import com.example.snap.SnapLinguaApplication;
 import com.example.snap.ui.base.BaseActivity;
 import com.example.snap.ui.components.BottomNavigationComponent;
 import com.example.snap.ui.components.LanguageSelector;
@@ -330,18 +331,18 @@ public class Camara extends BaseActivity {
                         tvTranslatedResult.setVisibility(View.VISIBLE);
                         tvTranslatedResult.setText(fullText.toString());
                     } else {
-                        Toast.makeText(this, "No se encontró texto", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(SnapLinguaApplication.getLanguageContext(this), R.string.no_texto_encontrado, Toast.LENGTH_SHORT).show();
                         tvTranslatedResult.setVisibility(View.GONE);
                     }
                 })
-                .addOnFailureListener(e -> Toast.makeText(this, "Error OCR", Toast.LENGTH_SHORT).show());
+                .addOnFailureListener(e -> Toast.makeText(SnapLinguaApplication.getLanguageContext(this), R.string.error_ocr, Toast.LENGTH_SHORT).show());
     }
 
     private void showWelcomeMessage() {
         if (!isUserLoggedIn()) {
             showMessage("Modo Invitado — camara activa");
         } else {
-            showMessage("Hola " + getCurrentUser());
+            showMessage(getString(R.string.hola_usuario, getCurrentUser()));
         }
     }
 

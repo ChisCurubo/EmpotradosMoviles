@@ -211,7 +211,7 @@ public class StatisticsActivity extends BaseActivity {
     private void showLoginPrompt() {
         tvFavoriteLangs.setText("Inicia sesión para ver tus idiomas favoritos");
         favoritesAdapter.updateData(new ArrayList<>());
-        showMessage("Inicia sesión para ver tu historial y estadísticas");
+        showMessage(getString(R.string.inicia_sesion_historial));
     }
 
     private void showClearHistoryDialog() {
@@ -242,16 +242,16 @@ public class StatisticsActivity extends BaseActivity {
 
     private void showClearHistoryDialogWithData(String userId, List<TranslationHistory> currentHistory) {
         new AlertDialog.Builder(this)
-                .setTitle("Borrar historial")
-                .setMessage("¿Desea borrar todo el historial?")
-                .setPositiveButton("Sí", (dialog, which) -> {
+                .setTitle(R.string.borrar_historial_titulo)
+                .setMessage(R.string.borrar_historial_mensaje)
+                .setPositiveButton(R.string.si, (dialog, which) -> {
                     viewModel.clearAllHistory(userId);
                     historyAdapter.updateData(new ArrayList<>());
 
                     // Mostrar Snackbar con opción de deshacer
                     Snackbar.make(findViewById(android.R.id.content),
-                            "Historial borrado", Snackbar.LENGTH_LONG)
-                            .setAction("DESHACER", v -> {
+                            R.string.historial_borrado, Snackbar.LENGTH_LONG)
+                            .setAction(R.string.deshacer, v -> {
                                 // Restaurar todos los elementos
                                 for (TranslationHistory history : currentHistory) {
                                     viewModel.restoreHistory(history);
@@ -259,7 +259,7 @@ public class StatisticsActivity extends BaseActivity {
                             })
                             .show();
                 })
-                .setNegativeButton("No", null)
+                .setNegativeButton(R.string.no, null)
                 .show();
     }
 
@@ -291,16 +291,16 @@ public class StatisticsActivity extends BaseActivity {
 
     private void showClearFavoritesDialogWithData(String userId, List<Favorite> currentFavorites) {
         new AlertDialog.Builder(this)
-                .setTitle("Borrar favoritos")
-                .setMessage("¿Desea borrar todos los favoritos?")
-                .setPositiveButton("Sí", (dialog, which) -> {
+                .setTitle(R.string.borrar_favoritos_titulo)
+                .setMessage(R.string.borrar_favoritos_mensaje)
+                .setPositiveButton(R.string.si, (dialog, which) -> {
                     viewModel.clearAllFavorites(userId);
                     favoritesAdapter.updateData(new ArrayList<>());
 
                     // Mostrar Snackbar con opción de deshacer
                     Snackbar.make(findViewById(android.R.id.content),
-                            "Favoritos borrados", Snackbar.LENGTH_LONG)
-                            .setAction("DESHACER", v -> {
+                            R.string.favoritos_borrados, Snackbar.LENGTH_LONG)
+                            .setAction(R.string.deshacer, v -> {
                                 // Restaurar todos los elementos
                                 for (Favorite favorite : currentFavorites) {
                                     viewModel.restoreFavorite(favorite);
@@ -308,45 +308,45 @@ public class StatisticsActivity extends BaseActivity {
                             })
                             .show();
                 })
-                .setNegativeButton("No", null)
+                .setNegativeButton(R.string.no, null)
                 .show();
     }
 
     private void showDeleteHistoryDialog(TranslationHistory history) {
         new AlertDialog.Builder(this)
-                .setTitle("Borrar del historial")
-                .setMessage("¿Desea borrar esta traducción del historial?")
-                .setPositiveButton("Sí", (dialog, which) -> {
+                .setTitle(R.string.borrar_del_historial_titulo)
+                .setMessage(R.string.borrar_del_historial_mensaje)
+                .setPositiveButton(R.string.si, (dialog, which) -> {
                     viewModel.deleteHistory(history);
 
                     // Mostrar Snackbar con opción de deshacer
                     Snackbar.make(findViewById(android.R.id.content),
-                            "Elemento eliminado", Snackbar.LENGTH_LONG)
-                            .setAction("DESHACER", v -> {
+                            R.string.traduccion_borrada, Snackbar.LENGTH_LONG)
+                            .setAction(R.string.deshacer, v -> {
                                 viewModel.restoreHistory(history);
                             })
                             .show();
                 })
-                .setNegativeButton("No", null)
+                .setNegativeButton(R.string.no, null)
                 .show();
     }
 
     private void showDeleteFavoriteDialog(Favorite favorite) {
         new AlertDialog.Builder(this)
-                .setTitle("Borrar favorito")
-                .setMessage("¿Desea borrar este favorito?")
-                .setPositiveButton("Sí", (dialog, which) -> {
+                .setTitle(R.string.borrar_favorito_titulo)
+                .setMessage(R.string.borrar_favorito_mensaje)
+                .setPositiveButton(R.string.si, (dialog, which) -> {
                     viewModel.deleteFavorite(favorite);
 
                     // Mostrar Snackbar con opción de deshacer
                     Snackbar.make(findViewById(android.R.id.content),
-                            "Elemento eliminado", Snackbar.LENGTH_LONG)
-                            .setAction("DESHACER", v -> {
+                            R.string.favorito_borrado, Snackbar.LENGTH_LONG)
+                            .setAction(R.string.deshacer, v -> {
                                 viewModel.restoreFavorite(favorite);
                             })
                             .show();
                 })
-                .setNegativeButton("No", null)
+                .setNegativeButton(R.string.no, null)
                 .show();
     }
 }

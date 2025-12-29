@@ -76,7 +76,7 @@ public class VoiceFragment extends Fragment implements TextToSpeech.OnInitListen
                 if (isGranted) {
                     startVoiceRecognition();
                 } else {
-                    Toast.makeText(requireContext(), "Permiso de micrófono denegado", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(SnapLinguaApplication.getLanguageContext(requireContext()), R.string.permiso_microfono_denegado, Toast.LENGTH_SHORT).show();
                 }
             });
 
@@ -173,7 +173,7 @@ public class VoiceFragment extends Fragment implements TextToSpeech.OnInitListen
         try {
             speechLauncher.launch(intent);
         } catch (Exception e) {
-            Toast.makeText(requireContext(), "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(SnapLinguaApplication.getLanguageContext(requireContext()), "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -182,8 +182,8 @@ public class VoiceFragment extends Fragment implements TextToSpeech.OnInitListen
 
     private void translateText(String text) {
         if (currentSourceCode.equals(currentTargetCode)) {
-            Toast.makeText(requireContext(),
-                    "Los idiomas de origen y destino son iguales",
+            Toast.makeText(SnapLinguaApplication.getLanguageContext(requireContext()),
+                    R.string.idiomas_iguales,
                     Toast.LENGTH_SHORT).show();
             return;
         }
@@ -226,8 +226,8 @@ public class VoiceFragment extends Fragment implements TextToSpeech.OnInitListen
 
     private void speakTranslatedText() {
         if (!isTtsReady) {
-            Toast.makeText(requireContext(),
-                    "Motor de voz no disponible",
+            Toast.makeText(SnapLinguaApplication.getLanguageContext(requireContext()),
+                    R.string.motor_voz_no_disponible,
                     Toast.LENGTH_SHORT).show();
             return;
         }
@@ -235,8 +235,8 @@ public class VoiceFragment extends Fragment implements TextToSpeech.OnInitListen
         String text = translatedText.getText().toString();
         if (text.isEmpty() || text.equals("La traducción aparecerá aquí...") ||
                 text.equals("Traduciendo...")) {
-            Toast.makeText(requireContext(),
-                    "No hay texto para reproducir",
+            Toast.makeText(SnapLinguaApplication.getLanguageContext(requireContext()),
+                    R.string.no_texto_reproducir,
                     Toast.LENGTH_SHORT).show();
             return;
         }
@@ -246,8 +246,8 @@ public class VoiceFragment extends Fragment implements TextToSpeech.OnInitListen
         if (tts.setLanguage(locale) >= TextToSpeech.LANG_AVAILABLE) {
             tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, null);
         } else {
-            Toast.makeText(requireContext(),
-                    "Idioma no disponible para TTS",
+            Toast.makeText(SnapLinguaApplication.getLanguageContext(requireContext()),
+                    R.string.idioma_no_disponible_tts,
                     Toast.LENGTH_SHORT).show();
         }
     }

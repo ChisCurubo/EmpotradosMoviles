@@ -1,5 +1,6 @@
 package com.example.snap.utils;
 
+import com.example.snap.R;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -71,30 +72,20 @@ public class LanguageHelper {
     /**
      * Obtiene el array de nombres de idiomas disponibles
      */
-    public static String[] getAvailableLanguages() {
-        return new String[] { "Español", "Inglés", "Francés", "Alemán", "Italiano", "Portugués" };
+    public static String[] getAvailableLanguages(android.content.Context context) {
+        return context.getResources().getStringArray(R.array.languages);
     }
 
     /**
      * Obtiene el nombre del idioma a partir del código
      */
-    public static String getLanguageName(String code) {
-        switch (code) {
-            case "es":
-                return "Español";
-            case "en":
-                return "Inglés";
-            case "fr":
-                return "Francés";
-            case "de":
-                return "Alemán";
-            case "it":
-                return "Italiano";
-            case "pt":
-                return "Portugués";
-            default:
-                return "Desconocido";
+    public static String getLanguageName(android.content.Context context, String code) {
+        String[] languages = getAvailableLanguages(context);
+        int position = getLanguagePosition(code);
+        if (position >= 0 && position < languages.length) {
+            return languages[position];
         }
+        return "Unknown";
     }
 
     /**

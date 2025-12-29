@@ -57,7 +57,7 @@ public class MainActivity extends BaseActivity {
         if (!isUserLoggedIn()) {
             showMessage("Modo Invitado: Inicia sesión para guardar");
         } else {
-            showMessage("Sesión activa: " + getCurrentUser());
+            showMessage(getString(R.string.sesion_activa, getCurrentUser()));
         }
     }
 }

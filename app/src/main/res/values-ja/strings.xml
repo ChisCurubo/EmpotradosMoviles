@@ -29,6 +29,96 @@
     <string name="seleccionar_idioma_origen">元の言語を選択</string>
     <string name="seleccionar_idioma_destino">翻訳先言語を選択</string>
     <string name="seleccionar_idioma_app">アプリの言語を選択</string>
+    
+    <!-- Bottom Navigation -->
+    <string name="usuario">ユーザー</string>
+    <string name="perfil">プロフィール</string>
+    
+    <!-- Translation Result -->
+    <string name="resultado">結果</string>
+    <string name="texto_original_extraido">抽出された元のテキスト</string>
+    <string name="traduccion_texto">テキストの翻訳</string>
+    <string name="ver_imagen_completa">画像全体を表示</string>
+    <string name="nueva_foto">新しい写真</string>
+    <string name="guardar">保存</string>
+    
+    <!-- Text Activity -->
+    <string name="saludo">挨拶</string>
+    <string name="pregunta">質問</string>
+    <string name="agradecimiento">ありがとう</string>
+    
+    <!-- Voice Activity -->
+    <string name="toca_empezar_grabar">タップして録音開始</string>
+    <string name="manten_pulsado_grabar">長押しで音声録音</string>
+    <string name="texto_reconocido_aparecera">認識されたテキストがここに表示されます...</string>
+    <string name="traduccion">翻訳</string>
+    <string name="traduccion_aparecera">翻訳がここに表示されます...</string>
+    <string name="consejo_habla_claramente">ヒント: マイクの近くではっきり話してください</string>
+    
+    <!-- Statistics Activity -->
+    <string name="mi_perfil">マイプロフィール</string>
+    <string name="sin_sesion">セッションなし</string>
+    <string name="cerrar_sesion">ログアウト</string>
+    <string name="historial_reciente">最近の履歴</string>
+    <string name="borrar_todo">すべて削除</string>
+    <string name="desliza">スワイプ ↕</string>
+    <string name="idiomas_mas_usados">よく使う言語</string>
+    <string name="cargando_idiomas">言語を読み込み中...</string>
+    <string name="expresiones_guardadas">保存された表現</string>
+    
+    <!-- Login Activity -->
+    <string name="iniciar_sesion">ログイン</string>
+    <string name="registrarse">登録</string>
+    
+    <!-- Dialogs -->
+    <string name="borrar_historial_titulo">履歴を削除</string>
+    <string name="borrar_historial_mensaje">すべての履歴を削除しますか?</string>
+    <string name="borrar_favoritos_titulo">お気に入りを削除</string>
+    <string name="borrar_favoritos_mensaje">すべてのお気に入りを削除しますか?</string>
+    <string name="borrar_del_historial_titulo">履歴から削除</string>
+    <string name="borrar_del_historial_mensaje">この翻訳を履歴から削除しますか?</string>
+    <string name="borrar_favorito_titulo">お気に入りを削除</string>
+    <string name="borrar_favorito_mensaje">このお気に入りを削除しますか?</string>
+    <string name="si">はい</string>
+    <string name="no">いいえ</string>
+    <string name="cancelar">キャンセル</string>
+    
+    <!-- Snackbar messages -->
+    <string name="historial_borrado">履歴が削除されました</string>
+    <string name="favoritos_borrados">お気に入りが削除されました</string>
+    <string name="traduccion_borrada">翻訳が削除されました</string>
+    <string name="favorito_borrado">お気に入りが削除されました</string>
+    <string name="deshacer">元に戻す</string>
+    
+    <!-- Toast messages -->
+    <string name="sesion_activa">アクティブなセッション: %s</string>
+    <string name="bienvenido">ようこそ、%s</string>
+    <string name="hola_usuario">こんにちは %s</string>
+    <string name="cuenta_creada">アカウントが正常に作成されました</string>
+    <string name="funcion_audio_proximamente">音声機能は近日公開予定</string>
+    <string name="modo_texto_reiniciado">テキストモードがリセットされました</string>
+    <string name="escribe_algo_traducir">翻訳する内容を入力してください</string>
+    <string name="inicia_sesion_favoritos">お気に入りを保存するにはログインしてください</string>
+    <string name="agregado_favoritos">お気に入りに追加されました ⭐</string>
+    <string name="modo_invitado_guardar">ゲストモード：保存するにはログインしてください</string>
+    <string name="modo_invitado_voz">ゲストモード — 音声アクティブ</string>
+    <string name="sesion_cerrada">ログアウトしました - ゲストモード</string>
+    <string name="inicia_sesion_historial">履歴と統計を表示するにはログインしてください</string>
+    <string name="error_iniciar_voz">音声の起動エラー: %s</string>
+    <string name="idiomas_introducidos_iguales">入力された言語が同じです</string>
+    <string name="idioma_no_soportado_tts">TTSでサポートされていない言語です</string>
+    <string name="permiso_microfono_denegado">マイクの許可が拒否されました</string>
+    <string name="error">エラー</string>
+    <string name="idiomas_iguales">元の言語と対象言語が同じです</string>
+    <string name="motor_voz_no_disponible">音声エンジンが利用できません</string>
+    <string name="no_texto_reproducir">再生するテキストがありません</string>
+    <string name="idioma_no_disponible_tts">TTSで利用できない言語です</string>
+    <string name="no_traduccion_guardar">保存する翻訳がありません</string>
+    <string name="no_audio_reproducir">再生する音声がありません</string>
+    <string name="texto_copiado">テキストがコピーされました</string>
+    <string name="no_hay_copiar">コピーするものがありません</string>
+    <string name="no_texto_encontrado">テキストが見つかりません</string>
+    <string name="error_ocr">OCRエラー</string>
 
     <!-- Mantener strings antiguos para evitar errores de compilación en otras actividades -->
     <string name="AddButton">Add</string>

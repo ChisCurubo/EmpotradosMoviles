@@ -29,6 +29,94 @@
     <string name="seleccionar_idioma_origen">Ausgangssprache wählen</string>
     <string name="seleccionar_idioma_destino">Zielsprache wählen</string>
     <string name="seleccionar_idioma_app">App-Sprache wählen</string>
+    
+    <!-- Bottom Navigation -->
+    <string name="usuario">Benutzer</string>
+    <string name="perfil">Profil</string>
+    
+    <!-- Translation Result -->
+    <string name="resultado">Ergebnis</string>
+    <string name="texto_original_extraido">Extrahierter Originaltext</string>
+    <string name="traduccion_texto">Textübersetzung</string>
+    <string name="ver_imagen_completa">Vollbild ansehen</string>
+    <string name="nueva_foto">Neues Foto</string>
+    <string name="guardar">Speichern</string>
+    
+    <!-- Text Activity -->
+    <string name="saludo">Begrüßung</string>
+    <string name="pregunta">Frage</string>
+    <string name="agradecimiento">Danke</string>
+    
+    <!-- Voice Activity -->
+    <string name="toca_empezar_grabar">Tippen zum Aufnehmen</string>
+    <string name="manten_pulsado_grabar">Halten zum Aufnehmen von Audio</string>
+    <string name="texto_reconocido_aparecera">Erkannter Text wird hier angezeigt...</string>
+    <string name="traduccion">Übersetzung</string>
+    <string name="traduccion_aparecera">Übersetzung wird hier angezeigt...</string>
+    <string name="consejo_habla_claramente">Tipp: Sprechen Sie deutlich in der Nähe des Mikrofons</string>
+    
+    <!-- Statistics Activity -->
+    <string name="mi_perfil">Mein Profil</string>
+    <string name="sin_sesion">Keine Sitzung</string>
+    <string name="cerrar_sesion">Abmelden</string>
+    <string name="historial_reciente">Letzte Verlauf</string>
+    <string name="borrar_todo">Alles löschen</string>
+    <string name="desliza">Wischen ↕</string>
+    <string name="idiomas_mas_usados">Ihre meistverwendeten Sprachen</string>
+    <string name="cargando_idiomas">Sprachen werden geladen...</string>
+    <string name="expresiones_guardadas">Gespeicherte Ausdrücke</string>
+    
+    <!-- Login Activity -->
+    <string name="iniciar_sesion">Anmelden</string>
+    <string name="registrarse">Registrieren</string>
+    
+    <!-- Dialogs -->
+    <string name="borrar_historial_titulo">Verlauf löschen</string>
+    <string name="borrar_historial_mensaje">Möchten Sie den gesamten Verlauf löschen?</string>
+    <string name="borrar_favoritos_titulo">Favoriten löschen</string>
+    <string name="borrar_favoritos_mensaje">Möchten Sie alle Favoriten löschen?</string>
+    <string name="borrar_del_historial_titulo">Aus Verlauf löschen</string>
+    <string name="borrar_del_historial_mensaje">Möchten Sie diese Übersetzung aus dem Verlauf löschen?</string>
+    <string name="borrar_favorito_titulo">Favorit löschen</string>
+    <string name="borrar_favorito_mensaje">Möchten Sie diesen Favoriten löschen?</string>
+    <string name="si">Ja</string>
+    <string name="no">Nein</string>
+    <string name="cancelar">Abbrechen</string>
+    
+    <!-- Snackbar messages -->
+    <string name="historial_borrado">Verlauf gelöscht</string>
+    <string name="favoritos_borrados">Favoriten gelöscht</string>
+    <string name="traduccion_borrada">Übersetzung gelöscht</string>
+    <string name="favorito_borrado">Favorit gelöscht</string>
+    <string name="deshacer">RÜCKGÄNGIG</string>
+    
+    <!-- Toast messages -->
+    <string name="sesion_activa">Aktive Sitzung: %s</string>
+    <string name="bienvenido">Willkommen, %s</string>
+    <string name="hola_usuario">Hallo %s</string>
+    <string name="cuenta_creada">Konto erfolgreich erstellt</string>
+    <string name="funcion_audio_proximamente">Audio-Funktion in Kürze verfügbar</string>
+    <string name="modo_texto_reiniciado">Textmodus zurückgesetzt</string>
+    <string name="escribe_algo_traducir">Schreiben Sie etwas zum Übersetzen</string>
+    <string name="inicia_sesion_favoritos">Melden Sie sich an, um Favoriten zu speichern</string>
+    <string name="agregado_favoritos">Zu Favoriten hinzugefügt ⭐</string>
+    <string name="modo_invitado_guardar">Gastmodus: Anmelden zum Speichern</string>
+    <string name="modo_invitado_voz">Gastmodus — Stimme aktiv</string>
+    <string name="sesion_cerrada">Abgemeldet - Gastmodus</string>
+    <string name="inicia_sesion_historial">Melden Sie sich an, um Ihren Verlauf und Statistiken anzuzeigen</string>
+    <string name="error_iniciar_voz">Fehler beim Starten der Stimme: %s</string>
+    <string name="idiomas_introducidos_iguales">Die eingegebenen Sprachen sind gleich</string>
+    <string name="idioma_no_soportado_tts">Sprache wird von TTS nicht unterstützt</string>
+    <string name="permiso_microfono_denegado">Mikrofon-Berechtigung verweigert</string>
+    <string name="error">Fehler</string>    <string name="idiomas_iguales">Quell- und Zielsprache sind gleich</string>
+    <string name="motor_voz_no_disponible">Sprachmotor nicht verfügbar</string>
+    <string name="no_texto_reproducir">Kein Text zum Abspielen</string>
+    <string name="idioma_no_disponible_tts">Sprache nicht verfügbar für TTS</string>    <string name="no_traduccion_guardar">Keine Übersetzung zum Speichern</string>
+    <string name="no_audio_reproducir">Kein Audio zum Abspielen</string>
+    <string name="texto_copiado">Text kopiert</string>
+    <string name="no_hay_copiar">Nichts zum Kopieren</string>
+    <string name="no_texto_encontrado">Kein Text gefunden</string>
+    <string name="error_ocr">OCR-Fehler</string>
 
     <!-- Mantener strings antiguos para evitar errores de compilación en otras actividades -->
     <string name="AddButton">Add</string>

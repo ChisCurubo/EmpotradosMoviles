@@ -63,7 +63,7 @@ public class VoiceActivity extends BaseActivity implements TextToSpeech.OnInitLi
                 if (isGranted) {
                     startVoiceRecognition();
                 } else {
-                    showMessage("Permiso de micrófono denegado");
+                    showMessage(getString(R.string.permiso_microfono_denegado));
                 }
             });
 
@@ -189,13 +189,13 @@ public class VoiceActivity extends BaseActivity implements TextToSpeech.OnInitLi
         try {
             speechLauncher.launch(intent);
         } catch (Exception e) {
-            showMessage("Error al iniciar voz: " + e.getMessage());
+            showMessage(getString(R.string.error_iniciar_voz, e.getMessage()));
         }
     }
 
     private void translateText(String text) {
         if (sourceLang.equals(targetLang)) {
-            showMessage("Los idiomas introducidos son iguales");
+            showMessage(getString(R.string.idiomas_introducidos_iguales));
             return;
         }
 
@@ -208,7 +208,7 @@ public class VoiceActivity extends BaseActivity implements TextToSpeech.OnInitLi
 
     private void speakTranslatedText() {
         if (!isTtsReady) {
-            showMessage("Motor de voz no disponible");
+            showMessage(getString(R.string.motor_voz_no_disponible));
             return;
         }
 
@@ -222,7 +222,7 @@ public class VoiceActivity extends BaseActivity implements TextToSpeech.OnInitLi
         int result = tts.setLanguage(locale);
 
         if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
-            showMessage("Idioma no soportado por TTS");
+            showMessage(getString(R.string.idioma_no_soportado_tts));
         } else {
             tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, null);
         }
@@ -240,9 +240,9 @@ public class VoiceActivity extends BaseActivity implements TextToSpeech.OnInitLi
 
     private void showWelcomeMessage() {
         if (!isUserLoggedIn()) {
-            showMessage("Modo Invitado — voz activa");
+            showMessage(getString(R.string.modo_invitado_voz));
         } else {
-            showMessage("Hola " + getCurrentUser());
+            showMessage(getString(R.string.hola_usuario, getCurrentUser()));
         }
     }
 

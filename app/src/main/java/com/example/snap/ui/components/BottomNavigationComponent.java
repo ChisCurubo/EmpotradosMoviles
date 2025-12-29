@@ -161,7 +161,11 @@ public class BottomNavigationComponent extends LinearLayout {
 
     public void updateUserButtonState() {
         if (btnUsuario != null) {
-            btnUsuario.setText(sessionManager.isLoggedIn() ? "Perfil" : "Usuario");
+            Context context = getContext();
+            String text = sessionManager.isLoggedIn() 
+                ? context.getString(R.string.perfil) 
+                : context.getString(R.string.usuario);
+            btnUsuario.setText(text);
         }
     }
 }

@@ -29,6 +29,96 @@
     <string name="seleccionar_idioma_origen">원본 언어 선택</string>
     <string name="seleccionar_idioma_destino">대상 언어 선택</string>
     <string name="seleccionar_idioma_app">앱 언어 선택</string>
+    
+    <!-- Bottom Navigation -->
+    <string name="usuario">사용자</string>
+    <string name="perfil">프로필</string>
+    
+    <!-- Translation Result -->
+    <string name="resultado">결과</string>
+    <string name="texto_original_extraido">추출된 원본 텍스트</string>
+    <string name="traduccion_texto">텍스트 번역</string>
+    <string name="ver_imagen_completa">전체 이미지 보기</string>
+    <string name="nueva_foto">새 사진</string>
+    <string name="guardar">저장</string>
+    
+    <!-- Text Activity -->
+    <string name="saludo">인사</string>
+    <string name="pregunta">질문</string>
+    <string name="agradecimiento">감사합니다</string>
+    
+    <!-- Voice Activity -->
+    <string name="toca_empezar_grabar">녹음을 시작하려면 탭하세요</string>
+    <string name="manten_pulsado_grabar">오디오를 녹음하려면 길게 누르세요</string>
+    <string name="texto_reconocido_aparecera">인식된 텍스트가 여기에 표시됩니다...</string>
+    <string name="traduccion">번역</string>
+    <string name="traduccion_aparecera">번역이 여기에 표시됩니다...</string>
+    <string name="consejo_habla_claramente">팁: 마이크 근처에서 명확하게 말하세요</string>
+    
+    <!-- Statistics Activity -->
+    <string name="mi_perfil">내 프로필</string>
+    <string name="sin_sesion">세션 없음</string>
+    <string name="cerrar_sesion">로그아웃</string>
+    <string name="historial_reciente">최근 기록</string>
+    <string name="borrar_todo">모두 지우기</string>
+    <string name="desliza">스와이프 ↕</string>
+    <string name="idiomas_mas_usados">가장 많이 사용한 언어</string>
+    <string name="cargando_idiomas">언어를 불러오는 중...</string>
+    <string name="expresiones_guardadas">저장된 표현</string>
+    
+    <!-- Login Activity -->
+    <string name="iniciar_sesion">로그인</string>
+    <string name="registrarse">가입</string>
+    
+    <!-- Dialogs -->
+    <string name="borrar_historial_titulo">기록 삭제</string>
+    <string name="borrar_historial_mensaje">모든 기록을 삭제하시겠습니까?</string>
+    <string name="borrar_favoritos_titulo">즐겪찾기 삭제</string>
+    <string name="borrar_favoritos_mensaje">모든 즐겪찾기를 삭제하시겠습니까?</string>
+    <string name="borrar_del_historial_titulo">기록에서 삭제</string>
+    <string name="borrar_del_historial_mensaje">이 번역을 기록에서 삭제하시겠습니까?</string>
+    <string name="borrar_favorito_titulo">즐겪찾기 삭제</string>
+    <string name="borrar_favorito_mensaje">이 즐겪찾기를 삭제하시겠습니까?</string>
+    <string name="si">예</string>
+    <string name="no">아니요</string>
+    <string name="cancelar">취소</string>
+    
+    <!-- Snackbar messages -->
+    <string name="historial_borrado">기록이 삭제되었습니다</string>
+    <string name="favoritos_borrados">즐겪찾기가 삭제되었습니다</string>
+    <string name="traduccion_borrada">번역이 삭제되었습니다</string>
+    <string name="favorito_borrado">즐겪찾기가 삭제되었습니다</string>
+    <string name="deshacer">실행 취소</string>
+    
+    <!-- Toast messages -->
+    <string name="sesion_activa">활성 세션: %s</string>
+    <string name="bienvenido">환영합니다, %s</string>
+    <string name="hola_usuario">안녕하세요 %s</string>
+    <string name="cuenta_creada">계정이 성공적으로 생성되었습니다</string>
+    <string name="funcion_audio_proximamente">오디오 기능 곧 출시</string>
+    <string name="modo_texto_reiniciado">텍스트 모드가 재설정되었습니다</string>
+    <string name="escribe_algo_traducir">번역할 내용을 입력하세요</string>
+    <string name="inicia_sesion_favoritos">즐겨찾기를 저장하려면 로그인하세요</string>
+    <string name="agregado_favoritos">즐겨찾기에 추가됨 ⭐</string>
+    <string name="modo_invitado_guardar">게스트 모드: 저장하려면 로그인하세요</string>
+    <string name="modo_invitado_voz">게스트 모드 — 음성 활성화</string>
+    <string name="sesion_cerrada">로그아웃됨 - 게스트 모드</string>
+    <string name="inicia_sesion_historial">기록 및 통계를 보려면 로그인하세요</string>
+    <string name="error_iniciar_voz">음성 시작 오류: %s</string>
+    <string name="idiomas_introducidos_iguales">입력한 언어가 동일합니다</string>
+    <string name="idioma_no_soportado_tts">TTS에서 지원하지 않는 언어입니다</string>
+    <string name="permiso_microfono_denegado">마이크 권한이 거부되었습니다</string>
+    <string name="error">오류</string>
+    <string name="idiomas_iguales">원본 언어와 대상 언어가 동일합니다</string>
+    <string name="motor_voz_no_disponible">음성 엔진을 사용할 수 없습니다</string>
+    <string name="no_texto_reproducir">재생할 텍스트가 없습니다</string>
+    <string name="idioma_no_disponible_tts">TTS에 사용할 수 없는 언어입니다</string>
+    <string name="no_traduccion_guardar">저장할 번역이 없습니다</string>
+    <string name="no_audio_reproducir">재생할 오디오가 없습니다</string>
+    <string name="texto_copiado">텍스트가 복사되었습니다</string>
+    <string name="no_hay_copiar">복사할 것이 없습니다</string>
+    <string name="no_texto_encontrado">텍스트를 찾을 수 없습니다</string>
+    <string name="error_ocr">OCR 오류</string>
 
     <!-- Mantener strings antiguos para evitar errores de compilación en otras actividades -->
     <string name="AddButton">Add</string>

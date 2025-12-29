@@ -117,7 +117,7 @@ public class LoginActivity extends BaseActivity {
                     userRepository.registerSync(newUser);
                     runOnUiThread(() -> {
                         handleSuccessfulLogin(email);
-                        showMessage("Cuenta creada exitosamente");
+                        showMessage(getString(R.string.cuenta_creada));
                     });
                 }
             } catch (Exception e) {
@@ -131,7 +131,7 @@ public class LoginActivity extends BaseActivity {
 
     private void handleSuccessfulLogin(String email) {
         sessionManager.saveSession(email);
-        showMessage("Bienvenido, " + email);
+        showMessage(getString(R.string.bienvenido, email));
         navigationManager.navigateToMain(true);
     }
 

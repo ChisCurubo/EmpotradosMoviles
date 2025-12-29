@@ -80,14 +80,21 @@ public class LanguageSelector extends LinearLayout {
     }
 
     private void initLanguages() {
-        languagesMap.put("Español", "es");
-        languagesMap.put("Inglés", "en");
-        languagesMap.put("Francés", "fr");
-        languagesMap.put("Alemán", "de");
-        languagesMap.put("Italiano", "it");
-        languagesMap.put("Portugués", "pt");
-        languagesMap.put("Chino", "zh");
-        languagesMap.put("Japonés", "ja");
+        // Cargar nombres de idiomas desde recursos (se traducen automáticamente)
+        String[] languageNamesArray = getContext().getResources().getStringArray(R.array.languages);
+        String[] languageCodes = {"es", "en", "fr", "de", "it", "pt"};
+        
+        // Agregar idiomas adicionales si existen en el array
+        if (languageNamesArray.length > 6) {
+            // Si el array tiene más idiomas, usar códigos adicionales
+            String[] allCodes = {"es", "en", "fr", "de", "it", "pt", "zh", "ja"};
+            languageCodes = allCodes;
+        }
+        
+        // Mapear nombres traducidos a códigos
+        for (int i = 0; i < Math.min(languageNamesArray.length, languageCodes.length); i++) {
+            languagesMap.put(languageNamesArray[i], languageCodes[i]);
+        }
 
         languageNames.addAll(languagesMap.keySet());
     }

@@ -29,6 +29,96 @@
     <string name="seleccionar_idioma_origen">Select Source Language</string>
     <string name="seleccionar_idioma_destino">Select Target Language</string>
     <string name="seleccionar_idioma_app">Select App Language</string>
+    
+    <!-- Bottom Navigation -->
+    <string name="usuario">User</string>
+    <string name="perfil">Profile</string>
+    
+    <!-- Translation Result -->
+    <string name="resultado">Result</string>
+    <string name="texto_original_extraido">Extracted original text</string>
+    <string name="traduccion_texto">Text translation</string>
+    <string name="ver_imagen_completa">View full image</string>
+    <string name="nueva_foto">New Photo</string>
+    <string name="guardar">Save</string>
+    
+    <!-- Text Activity -->
+    <string name="saludo">Greeting</string>
+    <string name="pregunta">Question</string>
+    <string name="agradecimiento">Thank you</string>
+    
+    <!-- Voice Activity -->
+    <string name="toca_empezar_grabar">Tap to start recording</string>
+    <string name="manten_pulsado_grabar">Hold to record audio</string>
+    <string name="texto_reconocido_aparecera">Recognized text will appear here...</string>
+    <string name="traduccion">Translation</string>
+    <string name="traduccion_aparecera">Translation will appear here...</string>
+    <string name="consejo_habla_claramente">Tip: Speak clearly near the microphone</string>
+    
+    <!-- Statistics Activity -->
+    <string name="mi_perfil">My Profile</string>
+    <string name="sin_sesion">No session</string>
+    <string name="cerrar_sesion">Log Out</string>
+    <string name="historial_reciente">Recent History</string>
+    <string name="borrar_todo">Clear all</string>
+    <string name="desliza">Swipe ↕</string>
+    <string name="idiomas_mas_usados">Your most used languages</string>
+    <string name="cargando_idiomas">Loading languages...</string>
+    <string name="expresiones_guardadas">Saved Expressions</string>
+    
+    <!-- Login Activity -->
+    <string name="iniciar_sesion">Log In</string>
+    <string name="registrarse">Sign Up</string>
+    
+    <!-- Dialogs -->
+    <string name="borrar_historial_titulo">Clear history</string>
+    <string name="borrar_historial_mensaje">Do you want to clear all history?</string>
+    <string name="borrar_favoritos_titulo">Clear favorites</string>
+    <string name="borrar_favoritos_mensaje">Do you want to clear all favorites?</string>
+    <string name="borrar_del_historial_titulo">Delete from history</string>
+    <string name="borrar_del_historial_mensaje">Do you want to delete this translation from history?</string>
+    <string name="borrar_favorito_titulo">Delete favorite</string>
+    <string name="borrar_favorito_mensaje">Do you want to delete this favorite?</string>
+    <string name="si">Yes</string>
+    <string name="no">No</string>
+    <string name="cancelar">Cancel</string>
+    
+    <!-- Snackbar messages -->
+    <string name="historial_borrado">History cleared</string>
+    <string name="favoritos_borrados">Favorites cleared</string>
+    <string name="traduccion_borrada">Translation deleted</string>
+    <string name="favorito_borrado">Favorite deleted</string>
+    <string name="deshacer">UNDO</string>
+    
+    <!-- Toast messages -->
+    <string name="sesion_activa">Active session: %s</string>
+    <string name="bienvenido">Welcome, %s</string>
+    <string name="hola_usuario">Hello %s</string>
+    <string name="cuenta_creada">Account created successfully</string>
+    <string name="funcion_audio_proximamente">Audio feature coming soon</string>
+    <string name="modo_texto_reiniciado">Text mode reset</string>
+    <string name="escribe_algo_traducir">Write something to translate</string>
+    <string name="inicia_sesion_favoritos">Log in to save favorites</string>
+    <string name="agregado_favoritos">Added to favorites ⭐</string>
+    <string name="modo_invitado_guardar">Guest Mode: Log in to save</string>
+    <string name="modo_invitado_voz">Guest Mode — voice active</string>
+    <string name="sesion_cerrada">Logged out - Guest Mode</string>
+    <string name="inicia_sesion_historial">Log in to view your history and statistics</string>
+    <string name="error_iniciar_voz">Error starting voice: %s</string>
+    <string name="idiomas_introducidos_iguales">The entered languages are the same</string>
+    <string name="idioma_no_soportado_tts">Language not supported by TTS</string>
+    <string name="permiso_microfono_denegado">Microphone permission denied</string>
+    <string name="error">Error</string>
+    <string name="idiomas_iguales">Source and target languages are the same</string>
+    <string name="motor_voz_no_disponible">Voice engine not available</string>
+    <string name="no_texto_reproducir">No text to play</string>
+    <string name="idioma_no_disponible_tts">Language not available for TTS</string>
+    <string name="no_traduccion_guardar">No translation to save</string>
+    <string name="no_audio_reproducir">No audio to play</string>
+    <string name="texto_copiado">Text copied</string>
+    <string name="no_hay_copiar">Nothing to copy</string>
+    <string name="no_texto_encontrado">No text found</string>
+    <string name="error_ocr">OCR Error</string>
 
     <!-- Mantener strings antiguos para evitar errores de compilación en otras actividades -->
     <string name="AddButton">Add</string>

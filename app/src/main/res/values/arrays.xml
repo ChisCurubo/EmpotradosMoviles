@@ -7,5 +7,19 @@
         <item>Alemán</item>
         <item>Italiano</item>
         <item>Portugués</item>
+        <item>Chino</item>
+        <item>Japonés</item>
+    </string-array>
+    
+    <string-array name="app_languages">
+        <item>Español</item>
+        <item>Inglés</item>
+        <item>Alemán</item>
+        <item>Francés</item>
+        <item>Italiano</item>
+        <item>Portugués</item>
+        <item>Japonés</item>
+        <item>Coreano</item>
+        <item>Chino</item>
     </string-array>
 </resources>

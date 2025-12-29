@@ -69,8 +69,8 @@ public class SettingsActivity extends BaseActivity {
 
         switchAutoTts.setChecked(autoTts);
         switchSaveHistory.setChecked(saveHistory);
-        tvDefaultSource.setText(com.example.snap.utils.LanguageHelper.getLanguageName(sourceLang));
-        tvDefaultTarget.setText(com.example.snap.utils.LanguageHelper.getLanguageName(targetLang));
+        tvDefaultSource.setText(com.example.snap.utils.LanguageHelper.getLanguageName(this, sourceLang));
+        tvDefaultTarget.setText(com.example.snap.utils.LanguageHelper.getLanguageName(this, targetLang));
         tvAppLanguage.setText(getAppLanguageName(appLanguage));
     }
 
@@ -89,11 +89,18 @@ public class SettingsActivity extends BaseActivity {
         containerDefaultTarget.setOnClickListener(v -> showLanguageDialog(false));
         containerAppLanguage.setOnClickListener(v -> showAppLanguageDialog());
 
-        btnBack.setOnClickListener(v -> finish());
+        btnBack.setOnClickListener(v -> {
+            // Volver a la pantalla anterior y recargarla
+            android.content.Intent intent = new android.content.Intent(this, StatisticsActivity.class);
+            intent.putExtra("USER_ID", userId);
+            intent.addFlags(android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
+            finish();
+        });
     }
 
     private void showLanguageDialog(boolean isSource) {
-        String[] languages = com.example.snap.utils.LanguageHelper.getAvailableLanguages();
+        String[] languages = com.example.snap.utils.LanguageHelper.getAvailableLanguages(this);
 
         new androidx.appcompat.app.AlertDialog.Builder(this)
                 .setTitle(isSource ? R.string.seleccionar_idioma_origen : R.string.seleccionar_idioma_destino)
@@ -113,56 +120,43 @@ public class SettingsActivity extends BaseActivity {
     }
 
     private void showAppLanguageDialog() {
-        String[] appLanguages = {"Español", "English", "Deutsch", "Français", "Italiano", "Português", "日本語", "한국어", "中文"};
+        String[] appLanguages = getResources().getStringArray(R.array.app_languages);
         String[] languageCodes = {"es", "en", "de", "fr", "it", "pt", "ja", "ko", "zh"};
 
         new androidx.appcompat.app.AlertDialog.Builder(this)
                 .setTitle(R.string.seleccionar_idioma_app)
                 .setItems(appLanguages, (dialog, which) -> {
                     String selectedCode = languageCodes[which];
+                    
+                    // Guardar idioma en las preferencias del usuario
                     SharedPreferences prefs = getSharedPreferences(getPrefsName(), MODE_PRIVATE);
                     prefs.edit().putString(KEY_APP_LANGUAGE, selectedCode).apply();
                     
-                    // Aplicar el cambio de idioma inmediatamente
-                    applyAppLanguage(selectedCode);
+                    // Asegurar que session_prefs tenga el userId correcto
+                    SharedPreferences sessionPrefs = getSharedPreferences("session_prefs", MODE_PRIVATE);
+                    sessionPrefs.edit().putString("active_user", userId).apply();
+                    
+                    // Log para verificar
+                    android.util.Log.d("SettingsActivity", "Saved language: " + selectedCode + " for user: " + userId);
                     
                     // Actualizar la UI inmediatamente
                     tvAppLanguage.setText(appLanguages[which]);
                     
-                    // Recrear la actividad para mostrar los cambios
+                    // Recrear la actividad para aplicar el nuevo idioma
                     recreate();
                 })
                 .show();
     }
 
-    private void applyAppLanguage(String languageCode) {
-        java.util.Locale locale;
-        if (languageCode.equals("zh")) {
-            locale = java.util.Locale.SIMPLIFIED_CHINESE;
-        } else if (languageCode.equals("ko")) {
-            locale = java.util.Locale.KOREAN;
-        } else {
-            locale = new java.util.Locale(languageCode);
-        }
-        
-        java.util.Locale.setDefault(locale);
-        android.content.res.Configuration config = new android.content.res.Configuration();
-        config.setLocale(locale);
-        getResources().updateConfiguration(config, getResources().getDisplayMetrics());
-    }
-
     private String getAppLanguageName(String code) {
-        switch (code) {
-            case "es": return "Español";
-            case "en": return "English";
-            case "de": return "Deutsch";
-            case "fr": return "Français";
-            case "it": return "Italiano";
-            case "pt": return "Português";
-            case "ja": return "日本語";
-            case "ko": return "한국어";
-            case "zh": return "中文";
-            default: return "Español";
+        String[] appLanguages = getResources().getStringArray(R.array.app_languages);
+        String[] languageCodes = {"es", "en", "de", "fr", "it", "pt", "ja", "ko", "zh"};
+        
+        for (int i = 0; i < languageCodes.length; i++) {
+            if (languageCodes[i].equals(code)) {
+                return appLanguages[i];
+            }
         }
+        return appLanguages[0]; // Default: primer idioma
     }
 }

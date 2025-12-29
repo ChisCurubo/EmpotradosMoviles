@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="languages">
+        <item>西班牙语</item>
+        <item>英语</item>
+        <item>法语</item>
+        <item>德语</item>
+        <item>意大利语</item>
+        <item>葡萄牙语</item>
+        <item>中文</item>
+        <item>日语</item>
+    </string-array>
+    
+    <string-array name="app_languages">
+        <item>西班牙语</item>
+        <item>英语</item>
+        <item>德语</item>
+        <item>法语</item>
+        <item>意大利语</item>
+        <item>葡萄牙语</item>
+        <item>日语</item>
+        <item>韩语</item>
+        <item>中文</item>
+    </string-array>
+</resources>

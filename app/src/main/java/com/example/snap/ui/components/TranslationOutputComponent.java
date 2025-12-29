@@ -13,6 +13,7 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 
 import com.example.snap.R;
+import com.example.snap.SnapLinguaApplication;
 
 /**
  * Componente reutilizable para mostrar el resultado de la traducción.
@@ -69,7 +70,7 @@ public class TranslationOutputComponent extends LinearLayout {
             if (isValidTranslation(text) && listener != null) {
                 listener.onSaveAsFavorite(text);
             } else {
-                Toast.makeText(getContext(), "No hay traducción para guardar", Toast.LENGTH_SHORT).show();
+                Toast.makeText(SnapLinguaApplication.getLanguageContext(getContext()), R.string.no_traduccion_guardar, Toast.LENGTH_SHORT).show();
             }
         });
         
@@ -79,7 +80,7 @@ public class TranslationOutputComponent extends LinearLayout {
             if (isValidTranslation(text) && listener != null) {
                 listener.onPlayAudio(text);
             } else {
-                Toast.makeText(getContext(), "No hay audio para reproducir", Toast.LENGTH_SHORT).show();
+                Toast.makeText(SnapLinguaApplication.getLanguageContext(getContext()), R.string.no_audio_reproducir, Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -125,9 +126,9 @@ public class TranslationOutputComponent extends LinearLayout {
                 .getSystemService(Context.CLIPBOARD_SERVICE);
             ClipData clip = ClipData.newPlainText("Traducción", text);
             clipboard.setPrimaryClip(clip);
-            Toast.makeText(getContext(), "Texto copiado", Toast.LENGTH_SHORT).show();
+            Toast.makeText(SnapLinguaApplication.getLanguageContext(getContext()), R.string.texto_copiado, Toast.LENGTH_SHORT).show();
         } else {
-            Toast.makeText(getContext(), "No hay nada para copiar", Toast.LENGTH_SHORT).show();
+            Toast.makeText(SnapLinguaApplication.getLanguageContext(getContext()), R.string.no_hay_copiar, Toast.LENGTH_SHORT).show();
         }
     }
     

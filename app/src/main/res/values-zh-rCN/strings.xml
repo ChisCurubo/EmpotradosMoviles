@@ -29,6 +29,94 @@
     <string name="seleccionar_idioma_origen">选择源语言</string>
     <string name="seleccionar_idioma_destino">选择目标语言</string>
     <string name="seleccionar_idioma_app">选择应用语言</string>
+    
+    <!-- Bottom Navigation -->
+    <string name="usuario">用户</string>
+    <string name="perfil">个人资料</string>
+    
+    <!-- Translation Result -->
+    <string name="resultado">结果</string>
+    <string name="texto_original_extraido">提取的原文</string>
+    <string name="traduccion_texto">文本翻译</string>
+    <string name="ver_imagen_completa">查看完整图像</string>
+    <string name="nueva_foto">新照片</string>
+    <string name="guardar">保存</string>
+    
+    <!-- Text Activity -->
+    <string name="saludo">问候</string>
+    <string name="pregunta">问题</string>
+    <string name="agradecimiento">谢谢</string>
+    
+    <!-- Voice Activity -->
+    <string name="toca_empezar_grabar">点击开始录音</string>
+    <string name="manten_pulsado_grabar">按住录制音频</string>
+    <string name="texto_reconocido_aparecera">识别的文本将显示在这里...</string>
+    <string name="traduccion">翻译</string>
+    <string name="traduccion_aparecera">翻译将显示在这里...</string>
+    <string name="consejo_habla_claramente">提示：在麦克风附近清晰说话</string>
+    
+    <!-- Statistics Activity -->
+    <string name="mi_perfil">我的个人资料</string>
+    <string name="sin_sesion">无会话</string>
+    <string name="cerrar_sesion">登出</string>
+    <string name="historial_reciente">最近历史</string>
+    <string name="borrar_todo">清除全部</string>
+    <string name="desliza">滑动 ↕</string>
+    <string name="idiomas_mas_usados">最常用的语言</string>
+    <string name="cargando_idiomas">正在加载语言...</string>
+    <string name="expresiones_guardadas">已保存的表达</string>
+    
+    <!-- Login Activity -->
+    <string name="iniciar_sesion">登录</string>
+    <string name="registrarse">注册</string>
+    
+    <!-- Dialogs -->
+    <string name="borrar_historial_titulo">清除历史</string>
+    <string name="borrar_historial_mensaje">您要清除所有历史记录吗?</string>
+    <string name="borrar_favoritos_titulo">清除收藏</string>
+    <string name="borrar_favoritos_mensaje">您要清除所有收藏吗?</string>
+    <string name="borrar_del_historial_titulo">从历史中删除</string>
+    <string name="borrar_del_historial_mensaje">您要从历史中删除此翻译吗?</string>
+    <string name="borrar_favorito_titulo">删除收藏</string>
+    <string name="borrar_favorito_mensaje">您要删除此收藏吗?</string>
+    <string name="si">是</string>
+    <string name="no">否</string>
+    <string name="cancelar">取消</string>
+    
+    <!-- Snackbar messages -->
+    <string name="historial_borrado">历史已清除</string>
+    <string name="favoritos_borrados">收藏已清除</string>
+    <string name="traduccion_borrada">翻译已删除</string>
+    <string name="favorito_borrado">收藏已删除</string>
+    <string name="deshacer">撤销</string>
+    
+    <!-- Toast messages -->
+    <string name="sesion_activa">活动会话：%s</string>
+    <string name="bienvenido">欢迎，%s</string>
+    <string name="hola_usuario">你好 %s</string>
+    <string name="cuenta_creada">账户创建成功</string>
+    <string name="funcion_audio_proximamente">音频功能即将推出</string>
+    <string name="modo_texto_reiniciado">文本模式已重置</string>
+    <string name="escribe_algo_traducir">请输入要翻译的内容</string>
+    <string name="inicia_sesion_favoritos">登录以保存收藏夹</string>
+    <string name="agregado_favoritos">已添加到收藏夹 ⭐</string>
+    <string name="modo_invitado_guardar">访客模式：登录以保存</string>
+    <string name="modo_invitado_voz">访客模式 — 语音激活</string>
+    <string name="sesion_cerrada">已退出 - 访客模式</string>
+    <string name="inicia_sesion_historial">登录以查看您的历史记录和统计信息</string>
+    <string name="error_iniciar_voz">启动语音错误：%s</string>
+    <string name="idiomas_introducidos_iguales">输入的语言相同</string>
+    <string name="idioma_no_soportado_tts">TTS不支持该语言</string>
+    <string name="permiso_microfono_denegado">麦克风权限被拒绝</string>
+    <string name="error">错误</string>    <string name="idiomas_iguales">源语言和目标语言相同</string>
+    <string name="motor_voz_no_disponible">语音引擎不可用</string>
+    <string name="no_texto_reproducir">没有要播放的文本</string>
+    <string name="idioma_no_disponible_tts">TTS不支持该语言</string>    <string name="no_traduccion_guardar">没有可保存的翻译</string>
+    <string name="no_audio_reproducir">没有可播放的音频</string>
+    <string name="texto_copiado">文本已复制</string>
+    <string name="no_hay_copiar">没有可复制的内容</string>
+    <string name="no_texto_encontrado">未找到文本</string>
+    <string name="error_ocr">OCR错误</string>
 
     <!-- Mantener strings antiguos para evitar errores de compilación en otras actividades -->
     <string name="AddButton">Add</string>

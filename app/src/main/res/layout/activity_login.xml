@@ -76,7 +76,7 @@
                 style="@style/Widget.MaterialComponents.Button"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
-                android:text="Iniciar Sesión"
+                android:text="@string/iniciar_sesion"
                 android:textAllCaps="false"
                 app:cornerRadius="8dp" />
 
@@ -86,7 +86,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
                 android:layout_marginTop="12dp"
-                android:text="Registrarse"
+                android:text="@string/registrarse"
                 android:textAllCaps="false"
                 app:cornerRadius="8dp" />
 

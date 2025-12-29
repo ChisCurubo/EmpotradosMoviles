@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="languages">
+        <item>Spagnolo</item>
+        <item>Inglese</item>
+        <item>Francese</item>
+        <item>Tedesco</item>
+        <item>Italiano</item>
+        <item>Portoghese</item>
+        <item>Cinese</item>
+        <item>Giapponese</item>
+    </string-array>
+    
+    <string-array name="app_languages">
+        <item>Spagnolo</item>
+        <item>Inglese</item>
+        <item>Tedesco</item>
+        <item>Francese</item>
+        <item>Italiano</item>
+        <item>Portoghese</item>
+        <item>Giapponese</item>
+        <item>Coreano</item>
+        <item>Cinese</item>
+    </string-array>
+</resources>

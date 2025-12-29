@@ -41,7 +41,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="Mi Perfil"
+                            android:text="@string/mi_perfil"
                             android:textStyle="bold"
                             android:textSize="18sp"/>
 
@@ -59,7 +59,7 @@
                         android:id="@+id/tvUserEmail"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Sin sesión"
+                        android:text="@string/sin_sesion"
                         android:textColor="@color/black"
                         android:layout_marginTop="4dp"/>
 
@@ -68,7 +68,7 @@
                         style="@style/Widget.MaterialComponents.Button.TextButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Cerrar Sesión"
+                        android:text="@string/cerrar_sesion"
                         android:textColor="@android:color/holo_red_dark"
                         android:layout_gravity="end"/>
                 </LinearLayout>
@@ -86,7 +86,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Historial Reciente"
+                    android:text="@string/historial_reciente"
                     android:textStyle="bold"/>
                 
                 <Button
@@ -94,7 +94,7 @@
                     style="@style/Widget.MaterialComponents.Button.TextButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Borrar todo"
+                    android:text="@string/borrar_todo"
                     android:textColor="@android:color/holo_red_dark"
                     android:textSize="12sp"
                     android:padding="4dp"
@@ -104,7 +104,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Desliza ↕"
+                    android:text="@string/desliza"
                     android:textSize="10sp"
                     android:textColor="#757575"
                     android:layout_marginStart="8dp"/>
@@ -130,13 +130,13 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Tus Idiomas más usados"
+                    android:text="@string/idiomas_mas_usados"
                     android:textStyle="bold"/>
                 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Desliza ↕"
+                    android:text="@string/desliza"
                     android:textSize="10sp"
                     android:textColor="#757575"/>
             </LinearLayout>
@@ -154,7 +154,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="12dp"
-                    android:text="Cargando idiomas..."/>
+                    android:text="@string/cargando_idiomas"/>
             </androidx.core.widget.NestedScrollView>
 
             <!-- Expresiones Guardadas (Favoritos) -->
@@ -169,7 +169,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Expresiones Guardadas"
+                    android:text="@string/expresiones_guardadas"
                     android:textStyle="bold"/>
                 
                 <Button
@@ -177,7 +177,7 @@
                     style="@style/Widget.MaterialComponents.Button.TextButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Borrar todo"
+                    android:text="@string/borrar_todo"
                     android:textColor="@android:color/holo_red_dark"
                     android:textSize="12sp"
                     android:padding="4dp"
@@ -187,7 +187,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Desliza ↕"
+                    android:text="@string/desliza"
                     android:textSize="10sp"
                     android:textColor="#757575"
                     android:layout_marginStart="8dp"/>

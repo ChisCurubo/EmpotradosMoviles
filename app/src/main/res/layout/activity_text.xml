@@ -244,7 +244,7 @@
                     android:id="@+id/chip1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Saludo"
+                    android:text="@string/saludo"
                     android:layout_marginEnd="8dp"
                     style="?android:attr/buttonBarButtonStyle"/>
 
@@ -252,7 +252,7 @@
                     android:id="@+id/chip2"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Pregunta"
+                    android:text="@string/pregunta"
                     android:layout_marginEnd="8dp"
                     style="?android:attr/buttonBarButtonStyle"/>
 
@@ -260,7 +260,7 @@
                     android:id="@+id/chip3"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Agradecimiento"
+                    android:text="@string/agradecimiento"
                     style="?android:attr/buttonBarButtonStyle"/>
 
             </LinearLayout>
