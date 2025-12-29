@@ -25,9 +25,10 @@ import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.example.snap.R;
-import com.example.snap.SnapLinguaApplication;
+import com.example.snap.presentation.viewmodel.TranslationViewModel;
 import com.example.snap.ui.base.BaseActivity;
 import com.example.snap.ui.components.BottomNavigationComponent;
 import com.example.snap.ui.components.LanguageSelector;
@@ -45,61 +46,80 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+
+
+/**
+ * Clase principal que maneja la cámara, el OCR (lectura de texto) y muestra la traducción.
+ */
 public class Camara extends BaseActivity {
 
     private static final String TAG = "CamaraActivity";
 
+    // Códigos para saber qué permiso pedimos
     private static final int CAMERA_PERMISSION_CODE = 100;
     private static final int GALLERY_REQUEST_CODE = 101;
     private static final int STORAGE_PERMISSION_CODE = 102;
 
-    private static final long ANALYSIS_DELAY = 800L;
+    // TIEMPO DE ESPERA (1.2 segundos) entre cada escaneo de la cámara.
+    // Esto es vital para no saturar la API ni calentar el teléfono.
+    private static final long ANALYSIS_DELAY = 1200L;
 
-    // --- Views ---
+    // --- Elementos visuales (la pantalla) ---
+    private PreviewView cameraPreview;      // Donde se ve la cámara
+    private ImageView imagePreview;         // Donde se ve la foto estática (galería)
+    private GraphicOverlay graphicOverlay;  // Capa transparente para dibujar los cuadritos
+    private TextView tvTranslatedResult;    // Texto abajo con la traducción completa
 
-    private PreviewView cameraPreview;
-    private ImageView imagePreview;
-    private GraphicOverlay graphicOverlay;
-    private TextView tvTranslatedResult;
-
+    // Botones
     private FloatingActionButton btnCapture;
     private FloatingActionButton btnGallery;
     private FloatingActionButton btnRefresh;
 
+    // Componentes propios
     private LanguageSelector languageSelector;
-
-    // Componente reutilizable
     private BottomNavigationComponent bottomNavigation;
 
-    private ImageCapture imageCapture;
-    private ImageAnalysis imageAnalysis;
-    private ExecutorService cameraExecutor;
+    // --- Herramientas de la Cámara (CameraX) ---
+    private ImageCapture imageCapture;       // Para tomar foto
+    private ImageAnalysis imageAnalysis;     // Para analizar el video en vivo
+    private ExecutorService cameraExecutor;  // Hilo de fondo para no trabar la UI
     private ProcessCameraProvider cameraProvider;
 
+    // --- Variables de control ---
     private boolean isProcessing = false;
-    private long lastAnalysisTime = 0;
+    private long lastAnalysisTime = 0; // Guarda la hora del último escaneo
 
-    private TextRecognizer textRecognizer;
+    // --- OCR y Traducción ---
+    private TextRecognizer textRecognizer;   // El lector de texto de Google
+    private TranslationViewModel viewModel;  // Conexión con la API
+    private OCR_Helper ocrHelper;            // Nuestro ayudante que decide si usar ML Kit o API
 
-    // Selector
+    // --- Idiomas seleccionados ---
     private String currentSourceCode = "es";
     private String currentTargetCode = "en";
-    private int currentSourceIndex = 0;
-    private int currentTargetIndex = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camara);
 
+        // 1. Vinculamos los elementos del diseño (XML) con el código
         initializeViews();
         setupLanguageSelector();
         setupButtons();
-        setupNavigation(); // Configuración limpia
+        setupNavigation();
 
+        // 2. Iniciamos el hilo secundario para la cámara
         cameraExecutor = Executors.newSingleThreadExecutor();
+
+        // 3. Iniciamos el lector de texto
         textRecognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS);
 
+        // 4. Preparamos el ViewModel y el Helper de traducción
+        viewModel = new ViewModelProvider(this).get(TranslationViewModel.class);
+        ocrHelper = new OCR_Helper(viewModel);
+
+        // 5. Pedimos permiso de cámara si no lo tenemos
         checkAndRequestPermissions();
 
         showWelcomeMessage();
@@ -114,20 +134,16 @@ public class Camara extends BaseActivity {
 
     private void initializeViews() {
         languageSelector = findViewById(R.id.languageSelector);
-
         cameraPreview = findViewById(R.id.cameraPreview);
         imagePreview = findViewById(R.id.imagePreview);
         graphicOverlay = findViewById(R.id.graphicOverlay);
         tvTranslatedResult = findViewById(R.id.tvTranslatedResult);
-
         btnCapture = findViewById(R.id.btnCapture);
         btnGallery = findViewById(R.id.btnGallery);
         btnRefresh = findViewById(R.id.btnRefresh);
-
         bottomNavigation = findViewById(R.id.bottomNavigation);
     }
 
-    // --- MÁGICA Y LIMPIA ---
     private void setupNavigation() {
         if (bottomNavigation != null) {
             bottomNavigation.attachToScreen("camara");
@@ -135,10 +151,9 @@ public class Camara extends BaseActivity {
     }
 
     private void setupLanguageSelector() {
-        // Cargar preferencias por defecto
+        // Obtenemos el usuario para guardar sus preferencias de idioma
         String currentUser = getCurrentUser();
-        if (currentUser == null)
-            currentUser = "guest";
+        if (currentUser == null) currentUser = "guest";
 
         android.content.SharedPreferences prefs = getSharedPreferences(
                 com.example.snap.SettingsActivity.PREFS_NAME + "_" + currentUser, MODE_PRIVATE);
@@ -146,16 +161,12 @@ public class Camara extends BaseActivity {
         String defaultSource = prefs.getString(com.example.snap.SettingsActivity.KEY_DEFAULT_SOURCE_LANG, "es");
         String defaultTarget = prefs.getString(com.example.snap.SettingsActivity.KEY_DEFAULT_TARGET_LANG, "en");
 
-        // Establecer idiomas por defecto
         languageSelector.setLanguages(defaultSource, defaultTarget);
 
+        // Escuchamos cuando el usuario cambia los idiomas
         languageSelector.setOnLanguageChangeListener((srcCode, tgtCode, srcIndex, tgtIndex) -> {
             currentSourceCode = srcCode;
             currentTargetCode = tgtCode;
-            currentSourceIndex = srcIndex;
-            currentTargetIndex = tgtIndex;
-
-            Log.d("LANG_SELECTOR", "Nuevo idioma: " + srcCode + " -> " + tgtCode);
         });
     }
 
@@ -185,25 +196,27 @@ public class Camara extends BaseActivity {
     protected void onPause() {
         super.onPause();
         isProcessing = false;
-        if (graphicOverlay != null)
-            graphicOverlay.clear();
+        if (graphicOverlay != null) graphicOverlay.clear();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (cameraExecutor != null)
-            cameraExecutor.shutdown();
-        if (textRecognizer != null)
-            textRecognizer.close();
+        // Limpieza de memoria al cerrar la pantalla
+        if (cameraExecutor != null) cameraExecutor.shutdown();
+        if (textRecognizer != null) textRecognizer.close();
+        if (ocrHelper != null) ocrHelper.close(); // Cerramos los traductores
     }
 
+    // Configura e inicia la cámara
     private void startCamera() {
         ListenableFuture<ProcessCameraProvider> cameraProviderFuture = ProcessCameraProvider.getInstance(this);
         cameraProviderFuture.addListener(() -> {
             try {
                 cameraProvider = cameraProviderFuture.get();
-                bindCameraUseCases();
+                bindCameraUseCases(); // Aquí conectamos la lógica
+
+                // Mostrar botones correctos
                 btnCapture.setVisibility(View.VISIBLE);
                 btnGallery.setVisibility(View.VISIBLE);
                 btnRefresh.setVisibility(View.GONE);
@@ -213,35 +226,47 @@ public class Camara extends BaseActivity {
         }, ContextCompat.getMainExecutor(this));
     }
 
+    // Une la vista previa, la captura y el análisis al ciclo de vida de la app
     private void bindCameraUseCases() {
-        if (cameraProvider == null)
-            return;
+        if (cameraProvider == null) return;
+
         Preview preview = new Preview.Builder().build();
         preview.setSurfaceProvider(cameraPreview.getSurfaceProvider());
+
         CameraSelector cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA;
+
         imageCapture = new ImageCapture.Builder().build();
+
+        // Configuración del análisis de imagen (para el OCR)
         imageAnalysis = new ImageAnalysis.Builder()
-                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST) // Si va lento, descarta frames viejos
                 .build();
+
         imageAnalysis.setAnalyzer(cameraExecutor, imageProxy -> {
-            if (!isProcessing)
-                processImageProxy(imageProxy);
-            else
-                imageProxy.close();
+            // Llamamos a nuestra función de procesamiento
+            processImageProxy(imageProxy);
         });
+
         try {
-            cameraProvider.unbindAll();
+            cameraProvider.unbindAll(); // Limpiar configuraciones viejas
             cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageCapture, imageAnalysis);
         } catch (Exception e) {
             Log.e(TAG, "Error binding camera", e);
         }
     }
 
+    // ========================================================================
+    // AQUÍ ESTÁ LA MAGIA: Procesamiento en vivo
+    // ========================================================================
+
     @androidx.camera.core.ExperimentalGetImage
     private void processImageProxy(ImageProxy imageProxy) {
         long currentTime = System.currentTimeMillis();
+
+        // 1. FRENO DE MANO: Si pasó menos tiempo del configurado (1.2s), no hacemos nada.
+        // Esto evita que la app se vuelva loca enviando peticiones a la API.
         if (currentTime - lastAnalysisTime < ANALYSIS_DELAY) {
-            imageProxy.close();
+            imageProxy.close(); // Importante cerrar para liberar la cámara
             return;
         }
         lastAnalysisTime = currentTime;
@@ -251,40 +276,144 @@ public class Camara extends BaseActivity {
             return;
         }
 
+        // Preparamos la imagen para ML Kit
         InputImage image = InputImage.fromMediaImage(imageProxy.getImage(),
                 imageProxy.getImageInfo().getRotationDegrees());
+
+        // 2. Buscamos texto en la imagen (OCR)
         textRecognizer.process(image)
                 .addOnSuccessListener(visionText -> {
+                    // Volvemos al hilo principal para dibujar en pantalla
                     runOnUiThread(() -> {
-                        graphicOverlay.clear();
+                        graphicOverlay.clear(); // Borrar dibujos anteriores
+
+                        // Calculamos si la imagen está rotada para dibujar bien los cuadros
                         boolean needRotation = imageProxy.getImageInfo().getRotationDegrees() == 90
                                 || imageProxy.getImageInfo().getRotationDegrees() == 270;
                         int width = needRotation ? imageProxy.getHeight() : imageProxy.getWidth();
                         int height = needRotation ? imageProxy.getWidth() : imageProxy.getHeight();
                         graphicOverlay.setImageSourceInfo(width, height, false);
-                        StringBuilder fullText = new StringBuilder();
-                        for (Text.TextBlock block : visionText.getTextBlocks()) {
-                            String translated = block.getText();
-                            graphicOverlay.add(block, translated);
-                            fullText.append(translated).append("\n");
-                        }
-                        if (fullText.length() > 0) {
-                            tvTranslatedResult.setVisibility(View.VISIBLE);
-                            tvTranslatedResult.setText(fullText.toString().trim());
-                        } else {
-                            tvTranslatedResult.setVisibility(View.GONE);
-                        }
                     });
+
+                    StringBuilder fullText = new StringBuilder();
+
+                    // 3. Recorremos cada bloque de texto encontrado
+                    for (Text.TextBlock block : visionText.getTextBlocks()) {
+                        String originalText = block.getText();
+
+                        // 4. Mandamos a traducir (OCR_Helper decide si usa API o ML Kit)
+                        ocrHelper.translateText(
+                                originalText,
+                                currentSourceCode,
+                                currentTargetCode,
+                                getCurrentUser(),
+                                new OCR_Helper.TranslationCallback() {
+                                    @Override
+                                    public void onSuccess(String translated) {
+                                        runOnUiThread(() -> {
+                                            // Si funciona: Dibujamos el texto traducido
+                                            if (graphicOverlay != null) {
+                                                graphicOverlay.add(block, translated);
+                                                fullText.append(translated).append("\n");
+                                                tvTranslatedResult.setText(fullText.toString());
+                                                tvTranslatedResult.setVisibility(View.VISIBLE);
+                                            }
+                                        });
+                                    }
+
+                                    @Override
+                                    public void onFailure(Exception e) {
+                                        // Si falla: Dibujamos el texto original (para no dejar vacío)
+                                        runOnUiThread(() -> {
+                                            if (graphicOverlay != null) {
+                                                graphicOverlay.add(block, originalText);
+                                                fullText.append(originalText).append("\n");
+                                                tvTranslatedResult.setText(fullText.toString());
+                                                tvTranslatedResult.setVisibility(View.VISIBLE);
+                                            }
+                                        });
+                                    }
+                                }
+                        );
+                    }
                 })
                 .addOnFailureListener(e -> Log.e(TAG, "Error OCR: " + e.getMessage()))
-                .addOnCompleteListener(task -> imageProxy.close());
+                .addOnCompleteListener(task -> {
+                    // 5. MUY IMPORTANTE: Cerramos la imagen para que la cámara pueda enviar la siguiente.
+                    imageProxy.close();
+                });
     }
 
+    // Procesamiento para fotos de la galería o capturas (imagen estática)
+    private void runOCRkOnBitmap(Bitmap bitmap) {
+        InputImage image = InputImage.fromBitmap(bitmap, 0);
+
+        textRecognizer.process(image)
+                .addOnSuccessListener(visionText -> {
+                    graphicOverlay.clear();
+                    graphicOverlay.setImageSourceInfo(bitmap.getWidth(), bitmap.getHeight(), false);
+                    StringBuilder fullText = new StringBuilder();
+
+                    if (visionText.getTextBlocks().isEmpty()) {
+                        Toast.makeText(Camara.this, "No se encontró texto", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    for (Text.TextBlock block : visionText.getTextBlocks()) {
+                        String originalText = block.getText();
+
+                        // Llamada al traductor
+                        ocrHelper.translateText(
+                                originalText,
+                                currentSourceCode,
+                                currentTargetCode,
+                                getCurrentUser(),
+                                new OCR_Helper.TranslationCallback() {
+                                    @Override
+                                    public void onSuccess(String translatedText) {
+                                        runOnUiThread(() -> {
+                                            graphicOverlay.add(block, translatedText);
+                                            fullText.append(translatedText).append("\n");
+
+                                            if (fullText.length() > 0) {
+                                                tvTranslatedResult.setVisibility(View.VISIBLE);
+                                                tvTranslatedResult.setText(fullText.toString().trim());
+                                            }
+                                        });
+                                    }
+
+                                    @Override
+                                    public void onFailure(Exception e) {
+                                        // Si falla, mostramos original
+                                        runOnUiThread(() -> {
+                                            graphicOverlay.add(block, originalText);
+                                            fullText.append(originalText).append("\n");
+
+                                            if (fullText.length() > 0) {
+                                                tvTranslatedResult.setVisibility(View.VISIBLE);
+                                                tvTranslatedResult.setText(fullText.toString().trim());
+                                            }
+                                        });
+                                    }
+                                }
+                        );
+                    }
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, "Error OCR", Toast.LENGTH_SHORT).show()
+                );
+    }
+
+    // ========================================================================
+    // Funciones auxiliares (Permisos, Galería, etc)
+    // ========================================================================
+
     private void capturePhoto() {
-        if (imageCapture == null)
-            return;
+        if (imageCapture == null) return;
+
         File photoFile = new File(getExternalFilesDir(null), "photo.jpg");
         ImageCapture.OutputFileOptions outputOptions = new ImageCapture.OutputFileOptions.Builder(photoFile).build();
+
         imageCapture.takePicture(outputOptions, ContextCompat.getMainExecutor(this),
                 new ImageCapture.OnImageSavedCallback() {
                     @Override
@@ -302,40 +431,20 @@ public class Camara extends BaseActivity {
     private void displayStaticImage(Uri imageUri) {
         try {
             Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUri);
-            cameraProvider.unbindAll();
+            cameraProvider.unbindAll(); // Detenemos la cámara en vivo
+
             cameraPreview.setVisibility(View.GONE);
             imagePreview.setVisibility(View.VISIBLE);
             imagePreview.setImageBitmap(bitmap);
+
             btnCapture.setVisibility(View.GONE);
-            btnRefresh.setVisibility(View.VISIBLE);
+            btnRefresh.setVisibility(View.VISIBLE); // Mostramos botón para volver
             btnGallery.setVisibility(View.GONE);
-            runOCRkOnBitmap(bitmap);
+
+            runOCRkOnBitmap(bitmap); // Analizamos la foto
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    private void runOCRkOnBitmap(Bitmap bitmap) {
-        InputImage image = InputImage.fromBitmap(bitmap, 0);
-        textRecognizer.process(image)
-                .addOnSuccessListener(visionText -> {
-                    graphicOverlay.clear();
-                    graphicOverlay.setImageSourceInfo(bitmap.getWidth(), bitmap.getHeight(), false);
-                    StringBuilder fullText = new StringBuilder();
-                    for (Text.TextBlock block : visionText.getTextBlocks()) {
-                        String txt = block.getText();
-                        graphicOverlay.add(block, txt);
-                        fullText.append(txt).append("\n");
-                    }
-                    if (fullText.length() > 0) {
-                        tvTranslatedResult.setVisibility(View.VISIBLE);
-                        tvTranslatedResult.setText(fullText.toString());
-                    } else {
-                        Toast.makeText(SnapLinguaApplication.getLanguageContext(this), R.string.no_texto_encontrado, Toast.LENGTH_SHORT).show();
-                        tvTranslatedResult.setVisibility(View.GONE);
-                    }
-                })
-                .addOnFailureListener(e -> Toast.makeText(SnapLinguaApplication.getLanguageContext(this), R.string.error_ocr, Toast.LENGTH_SHORT).show());
     }
 
     private void showWelcomeMessage() {
@@ -346,6 +455,7 @@ public class Camara extends BaseActivity {
         }
     }
 
+    // Vuelve al modo cámara en vivo
     private void resetToCamera() {
         cameraPreview.setVisibility(View.VISIBLE);
         imagePreview.setVisibility(View.GONE);
@@ -401,7 +511,7 @@ public class Camara extends BaseActivity {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-            @NonNull int[] grantResults) {
+                                           @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == CAMERA_PERMISSION_CODE && grantResults.length > 0
                 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {

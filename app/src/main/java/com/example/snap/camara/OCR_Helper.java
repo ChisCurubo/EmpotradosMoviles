@@ -1,152 +1,182 @@
 package com.example.snap.camara;
 
-import android.graphics.Bitmap;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.Observer;
 
-import com.google.mlkit.vision.common.InputImage;
-import com.google.mlkit.vision.text.Text;
-import com.google.mlkit.vision.text.TextRecognition;
-import com.google.mlkit.vision.text.TextRecognizer;
-import com.google.mlkit.vision.text.latin.TextRecognizerOptions;
+import com.example.snap.presentation.viewmodel.TranslationViewModel;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.mlkit.common.model.DownloadConditions;
+import com.google.mlkit.nl.translate.TranslateLanguage;
+import com.google.mlkit.nl.translate.Translation;
+import com.google.mlkit.nl.translate.Translator;
+import com.google.mlkit.nl.translate.TranslatorOptions;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * Clase helper para realizar OCR (reconocimiento de texto) en imágenes
+ * OCR_Helper: Híbrido (ML Kit + API)
+ * 1. Intenta usar ML Kit para resultados instantáneos (offline).
+ * 2. Si ML Kit falla o el modelo no está listo, usa la API (ViewModel) como respaldo.
  */
 public class OCR_Helper {
 
-    private static final String TAG = "OCRHelper";
-    private final TextRecognizer recognizer;
+    private static final String TAG = "OCR_Helper";
+    private final TranslationViewModel viewModel;
 
-    /**
-     * Interface para manejar los resultados del OCR
-     */
-    public interface OCRCallback {
-        void onSuccess(String extractedText);
+    // Caché para no recrear el cliente de traducción en cada frame
+    private final Map<String, Translator> translatorCache = new HashMap<>();
+
+    // Mapa de idiomas soportados por ML Kit en tu app
+    private static final Map<String, String> MLKIT_SUPPORTED = new HashMap<>();
+    static {
+        MLKIT_SUPPORTED.put("es", TranslateLanguage.SPANISH);
+        MLKIT_SUPPORTED.put("en", TranslateLanguage.ENGLISH);
+        MLKIT_SUPPORTED.put("it", TranslateLanguage.ITALIAN);
+        MLKIT_SUPPORTED.put("pt", TranslateLanguage.PORTUGUESE);
+        MLKIT_SUPPORTED.put("de", TranslateLanguage.GERMAN);
+        MLKIT_SUPPORTED.put("fr", TranslateLanguage.FRENCH);
+        // Agrega más si los necesitas
+    }
+
+    public OCR_Helper(TranslationViewModel vm) {
+        this.viewModel = vm;
+    }
+
+    public interface TranslationCallback {
+        void onSuccess(String translatedText);
         void onFailure(Exception e);
     }
 
     /**
-     * Constructor
-     */
-    public OCR_Helper() {
-        // Inicializar el reconocedor de texto
-        // Por defecto usa Latin script (español, inglés, francés, etc.)
-        recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS);
-    }
-
-    /**
-     * Procesa una imagen y extrae el texto
-     *
-     * @param bitmap Imagen a procesar
-     * @param callback Callback con el resultado
-     */
-    public void extractTextFromBitmap(Bitmap bitmap, OCRCallback callback) {
-        if (bitmap == null) {
-            callback.onFailure(new IllegalArgumentException("Bitmap no puede ser null"));
-            return;
-        }
-
-        try {
-            // Crear InputImage desde el Bitmap
-            InputImage image = InputImage.fromBitmap(bitmap, 0);
-
-            // Procesar la imagen
-            recognizer.process(image)
-                    .addOnSuccessListener(visionText -> {
-                        String extractedText = visionText.getText();
-
-                        if (extractedText.isEmpty()) {
-                            Log.w(TAG, "No se detectó texto en la imagen");
-                            callback.onSuccess("No se detectó texto en la imagen");
-                        } else {
-                            Log.d(TAG, "Texto extraído: " + extractedText);
-                            callback.onSuccess(extractedText);
-                        }
-                    })
-                    .addOnFailureListener(e -> {
-                        Log.e(TAG, "Error al extraer texto", e);
-                        callback.onFailure(e);
-                    });
-
-        } catch (Exception e) {
-            Log.e(TAG, "Error al procesar imagen", e);
-            callback.onFailure(e);
-        }
-    }
-
-    /**
-     * Procesa una imagen y extrae información detallada por bloques
-     *
-     * @param bitmap Imagen a procesar
-     * @param callback Callback con el resultado
-     */
-    public void extractDetailedText(Bitmap bitmap, DetailedOCRCallback callback) {
-        if (bitmap == null) {
-            callback.onFailure(new IllegalArgumentException("Bitmap no puede ser null"));
-            return;
-        }
-
-        try {
-            InputImage image = InputImage.fromBitmap(bitmap, 0);
-
-            recognizer.process(image)
-                    .addOnSuccessListener(visionText -> {
-                        if (visionText.getText().isEmpty()) {
-                            callback.onSuccess(visionText, "No se detectó texto");
-                        } else {
-                            String fullText = buildDetailedText(visionText);
-                            callback.onSuccess(visionText, fullText);
-                        }
-                    })
-                    .addOnFailureListener(callback::onFailure);
-
-        } catch (Exception e) {
-            callback.onFailure(e);
-        }
-    }
-
-    /**
-     * Construye un texto detallado con información de bloques y líneas
-     */
-    private String buildDetailedText(Text visionText) {
-        StringBuilder result = new StringBuilder();
-
-        result.append("📄 TEXTO COMPLETO:\n");
-        result.append(visionText.getText()).append("\n\n");
-
-        result.append("📊 ANÁLISIS POR BLOQUES:\n");
-        result.append("═══════════════════════\n");
-
-        int blockNumber = 1;
-        for (Text.TextBlock block : visionText.getTextBlocks()) {
-            result.append("\n🔹 Bloque ").append(blockNumber++).append(":\n");
-            result.append(block.getText()).append("\n");
-
-            // Opcional: mostrar líneas dentro del bloque
-            for (Text.Line line : block.getLines()) {
-                result.append("  → ").append(line.getText()).append("\n");
-            }
-        }
-
-        return result.toString();
-    }
-
-    /**
-     * Interface para resultados detallados del OCR
-     */
-    public interface DetailedOCRCallback {
-        void onSuccess(Text visionText, String formattedText);
-        void onFailure(Exception e);
-    }
-
-    /**
-     * Cierra el reconocedor y libera recursos
+     * Cierra los traductores para liberar memoria cuando se destruye la actividad
      */
     public void close() {
-        if (recognizer != null) {
-            recognizer.close();
+        for (Translator t : translatorCache.values()) {
+            t.close();
+        }
+        translatorCache.clear();
+    }
+
+    public void translateText(
+            String text,
+            String sourceCode,
+            String targetCode,
+            String userId,
+            TranslationCallback callback
+    ) {
+        // Validaciones básicas
+        if (text == null || text.trim().isEmpty()) {
+            callback.onFailure(new IllegalArgumentException("Texto vacío"));
+            return;
+        }
+
+        // Si el idioma es el mismo, no traducir
+        if (sourceCode.equals(targetCode)) {
+            callback.onSuccess(text);
+            return;
+        }
+
+        // ESTRATEGIA:
+        // 1. Verificamos si ambos idiomas están en ML Kit.
+        // 2. Si están, intentamos ML Kit.
+        // 3. Si no están (o ML Kit falla dentro del método), usamos la API.
+
+        if (MLKIT_SUPPORTED.containsKey(sourceCode) && MLKIT_SUPPORTED.containsKey(targetCode)) {
+            translateWithMLKit(text, sourceCode, targetCode, userId, callback);
+        } else {
+            // Idiomas no soportados por ML Kit (ej: Japonés, Ruso, etc.), ir directo a API
+            translateWithAPI(text, sourceCode, targetCode, userId, callback);
+        }
+    }
+
+    // ------------------------------------------------------------------------
+    // LÓGICA ML KIT
+    // ------------------------------------------------------------------------
+    private void translateWithMLKit(
+            String text,
+            String sourceCode,
+            String targetCode,
+            String userId,
+            TranslationCallback callback
+    ) {
+        String key = sourceCode + "-" + targetCode;
+        Translator translator = translatorCache.get(key);
+
+        if (translator == null) {
+            TranslatorOptions options = new TranslatorOptions.Builder()
+                    .setSourceLanguage(MLKIT_SUPPORTED.get(sourceCode))
+                    .setTargetLanguage(MLKIT_SUPPORTED.get(targetCode))
+                    .build();
+            translator = Translation.getClient(options);
+            translatorCache.put(key, translator);
+        }
+
+        Translator finalTranslator = translator;
+
+        // Condiciones de descarga (solo wifi para no gastar datos, opcional)
+        DownloadConditions conditions = new DownloadConditions.Builder()
+                .requireWifi()
+                .build();
+
+        // Intentamos preparar el modelo
+        finalTranslator.downloadModelIfNeeded(conditions)
+                .addOnSuccessListener(unused -> {
+                    // Modelo listo, traducimos
+                    finalTranslator.translate(text)
+                            .addOnSuccessListener(callback::onSuccess)
+                            .addOnFailureListener(e -> {
+                                Log.w(TAG, "Fallo traducción ML Kit, probando API...");
+                                // FALLBACK: Si falla la traducción interna, usar API
+                                translateWithAPI(text, sourceCode, targetCode, userId, callback);
+                            });
+                })
+                .addOnFailureListener(e -> {
+                    Log.w(TAG, "Modelo no descargado o error ML Kit. Usando API de respaldo.");
+                    // FALLBACK: Si falla la descarga del modelo, usar API inmediatamente
+                    translateWithAPI(text, sourceCode, targetCode, userId, callback);
+                });
+    }
+
+    // ------------------------------------------------------------------------
+    // LÓGICA API (VIEWMODEL)
+    // ------------------------------------------------------------------------
+    private void translateWithAPI(
+            String text,
+            String sourceCode,
+            String targetCode,
+            String userId,
+            TranslationCallback callback
+    ) {
+        // 1. Llamar al ViewModel para iniciar la petición
+        viewModel.translateText(text, sourceCode, targetCode, userId);
+
+        // 2. Observar la respuesta (LiveData)
+        final Observer<String> observer = new Observer<String>() {
+            @Override
+            public void onChanged(String translated) {
+                // IMPORTANTE: Remover el observer para evitar duplicados
+                viewModel.getCurrentTranslation().removeObserver(this);
+
+                if (translated == null || translated.trim().isEmpty()) {
+                    callback.onFailure(new Exception("La API devolvió una traducción vacía"));
+                } else if (translated.startsWith("Error")) {
+                    callback.onFailure(new Exception(translated));
+                } else {
+                    callback.onSuccess(translated);
+                }
+            }
+        };
+
+        // Observar de forma permanente
+        try {
+            // Asegurarse de estar en el hilo principal
+            viewModel.getCurrentTranslation().observeForever(observer);
+        } catch (Exception e) {
+            callback.onFailure(e);
         }
     }
 }
