@@ -2,8 +2,6 @@ package com.example.snap.services;
 
 import android.content.Context;
 
-import com.example.snap.models.TranslateResponse;
-
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -24,11 +22,12 @@ public class NetworkTranslationService {
 
     public interface TranslationCallback {
         void onSuccess(String translatedText);
+
         void onError(String error);
     }
 
     public void translateText(String text, String sourceLang, String targetLang,
-                              TranslationCallback callback) {
+            TranslationCallback callback) {
 
         executorService.execute(() -> {
             try {
@@ -38,35 +37,45 @@ public class NetworkTranslationService {
                     return;
                 }
 
-                String langPair = sourceLang + "|" + targetLang;
+                // Call<ResponseBody> call = apiService.translate("gtx", sourceLang, targetLang,
+                // "t", text);
+                Call<okhttp3.ResponseBody> call = apiService.translate("gtx", sourceLang, targetLang, "t", text);
 
-                Call<TranslateResponse> call = apiService.translate(text, langPair);
-
-                call.enqueue(new Callback<TranslateResponse>() {
+                call.enqueue(new Callback<okhttp3.ResponseBody>() {
                     @Override
-                    public void onResponse(Call<TranslateResponse> call, Response<TranslateResponse> response) {
+                    public void onResponse(Call<okhttp3.ResponseBody> call, Response<okhttp3.ResponseBody> response) {
                         if (response.isSuccessful() && response.body() != null) {
-                            String translatedText = response.body().getTranslatedText();
-                            if (translatedText != null && !translatedText.isEmpty()) {
-                                callback.onSuccess(translatedText);
-                            } else {
-                                callback.onError("Traducción vacía recibida");
+                            try {
+                                String jsonResponse = response.body().string();
+                                org.json.JSONArray jsonArray = new org.json.JSONArray(jsonResponse);
+                                // Google Translate devuelve array de arrays: [[["Translated", "Original", ...],
+                                // ...], ...]
+                                if (jsonArray.length() > 0) {
+                                    org.json.JSONArray sentences = jsonArray.getJSONArray(0);
+                                    StringBuilder translatedBuilder = new StringBuilder();
+
+                                    for (int i = 0; i < sentences.length(); i++) {
+                                        org.json.JSONArray sentence = sentences.getJSONArray(i);
+                                        if (sentence.length() > 0) {
+                                            translatedBuilder.append(sentence.getString(0));
+                                        }
+                                    }
+
+                                    String result = translatedBuilder.toString();
+                                    callback.onSuccess(result);
+                                } else {
+                                    callback.onError("Respuesta vacía");
+                                }
+                            } catch (Exception e) {
+                                callback.onError("Error parsing: " + e.getMessage());
                             }
                         } else {
-                            String errorMsg = "Error: " + response.code();
-                            if (response.errorBody() != null) {
-                                try {
-                                    errorMsg = response.errorBody().string();
-                                } catch (Exception e) {
-                                    errorMsg = "Error parsing response";
-                                }
-                            }
-                            callback.onError(errorMsg);
+                            callback.onError("Error API: " + response.code());
                         }
                     }
 
                     @Override
-                    public void onFailure(Call<TranslateResponse> call, Throwable t) {
+                    public void onFailure(Call<okhttp3.ResponseBody> call, Throwable t) {
                         callback.onError("Error de red: " + t.getMessage());
                     }
                 });

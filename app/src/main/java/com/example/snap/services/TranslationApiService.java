@@ -1,15 +1,16 @@
 package com.example.snap.services;
 
-import com.example.snap.models.TranslateResponse;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Query;
 
 public interface TranslationApiService {
-    // MyMemory usa el endpoint "get", no "translate"
-    @GET("get")
-    Call<TranslateResponse> translate(
-            @Query("q") String text,
-            @Query("langpair") String langPair
-    );
+    @GET("translate_a/single")
+    Call<ResponseBody> translate(
+            @Query("client") String client,
+            @Query("sl") String sourceLang,
+            @Query("tl") String targetLang,
+            @Query("dt") String dt,
+            @Query("q") String text);
 }
