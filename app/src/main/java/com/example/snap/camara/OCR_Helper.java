@@ -80,21 +80,17 @@ public class OCR_Helper {
             return;
         }
 
-        // ESTRATEGIA:
-        // 1. Verificamos si ambos idiomas están en ML Kit.
-        // 2. Si están, intentamos ML Kit.
-        // 3. Si no están (o ML Kit falla dentro del método), usamos la API.
-
-        if (MLKIT_SUPPORTED.containsKey(sourceCode) && MLKIT_SUPPORTED.containsKey(targetCode)) {
-            translateWithMLKit(text, sourceCode, targetCode, userId, callback);
-        } else {
-            // Idiomas no soportados por ML Kit (ej: Japonés, Ruso, etc.), ir directo a API
-            translateWithAPI(text, sourceCode, targetCode, userId, callback);
-        }
+        // --- CAMBIO IMPORTANTE: PREFERIR SIEMPRE LA API SI HAY INTERNET ---
+        // El usuario reportó problemas esperando la descarga de ML Kit.
+        // Además, ML Kit no guarda historial automáticamente en el ViewModel.
+        // Solución: Intentar API primero (ViewModel guarda historial y es inmediato online).
+        // Solo usar ML Kit si falla la API o queremos modo offline explícito (futuro).
+        
+        translateWithAPI(text, sourceCode, targetCode, userId, callback);
     }
 
     // ------------------------------------------------------------------------
-    // LÓGICA ML KIT
+    // LÓGICA ML KIT (AHORA ES SECUNDARIA / FALLBACK)
     // ------------------------------------------------------------------------
     private void translateWithMLKit(
             String text,
@@ -103,7 +99,8 @@ public class OCR_Helper {
             String userId,
             TranslationCallback callback
     ) {
-        String key = sourceCode + "-" + targetCode;
+        // ... (código existente de ML Kit, se mantiene como respaldo si se desea reactivar)
+         String key = sourceCode + "-" + targetCode;
         Translator translator = translatorCache.get(key);
 
         if (translator == null) {
@@ -122,27 +119,23 @@ public class OCR_Helper {
                 .requireWifi()
                 .build();
 
-        // Intentamos preparar el modelo
         finalTranslator.downloadModelIfNeeded(conditions)
                 .addOnSuccessListener(unused -> {
-                    // Modelo listo, traducimos
                     finalTranslator.translate(text)
                             .addOnSuccessListener(callback::onSuccess)
                             .addOnFailureListener(e -> {
-                                Log.w(TAG, "Fallo traducción ML Kit, probando API...");
-                                // FALLBACK: Si falla la traducción interna, usar API
-                                translateWithAPI(text, sourceCode, targetCode, userId, callback);
+                                Log.w(TAG, "Fallo traducción ML Kit");
+                                callback.onFailure(e);
                             });
                 })
                 .addOnFailureListener(e -> {
-                    Log.w(TAG, "Modelo no descargado o error ML Kit. Usando API de respaldo.");
-                    // FALLBACK: Si falla la descarga del modelo, usar API inmediatamente
-                    translateWithAPI(text, sourceCode, targetCode, userId, callback);
+                    Log.w(TAG, "Modelo no descargado o error ML Kit.");
+                    callback.onFailure(e);
                 });
     }
 
     // ------------------------------------------------------------------------
-    // LÓGICA API (VIEWMODEL)
+    // LÓGICA API (VIEWMODEL) - AHORA PRINCIPAL
     // ------------------------------------------------------------------------
     private void translateWithAPI(
             String text,
@@ -152,26 +145,42 @@ public class OCR_Helper {
             TranslationCallback callback
     ) {
         // 1. Llamar al ViewModel para iniciar la petición
+        // El ViewModel internamente llama a NetworkTranslationService Y LUEGO guarda en historial (Room)
         viewModel.translateText(text, sourceCode, targetCode, userId);
 
         // 2. Observar la respuesta (LiveData)
         final Observer<String> observer = new Observer<String>() {
             @Override
             public void onChanged(String translated) {
-                // IMPORTANTE: Remover el observer para evitar duplicados
+                // Filtrar estado "Traduciendo..." para no retornar prematuramente
+                if ("Traduciendo...".equals(translated)) {
+                    return;
+                }
+
+                // IMPORTANTE: Remover el observer para evitar duplicados y fugas
                 viewModel.getCurrentTranslation().removeObserver(this);
 
                 if (translated == null || translated.trim().isEmpty()) {
-                    callback.onFailure(new Exception("La API devolvió una traducción vacía"));
+                    // Si falla API, podríamos intentar ML Kit aquí como fallback offline
+                     if (MLKIT_SUPPORTED.containsKey(sourceCode) && MLKIT_SUPPORTED.containsKey(targetCode)) {
+                        translateWithMLKit(text, sourceCode, targetCode, userId, callback);
+                     } else {
+                        callback.onFailure(new Exception("La API devolvió una traducción vacía y no hay soporte ML Kit"));
+                     }
                 } else if (translated.startsWith("Error")) {
-                    callback.onFailure(new Exception(translated));
+                     // Lo mismo, si da error de red, probar ML Kit
+                     if (MLKIT_SUPPORTED.containsKey(sourceCode) && MLKIT_SUPPORTED.containsKey(targetCode)) {
+                        translateWithMLKit(text, sourceCode, targetCode, userId, callback);
+                     } else {
+                        callback.onFailure(new Exception(translated));
+                     }
                 } else {
                     callback.onSuccess(translated);
                 }
             }
         };
 
-        // Observar de forma permanente
+        // Observar de forma permanente (con cuidado de removerlo en onChanged)
         try {
             // Asegurarse de estar en el hilo principal
             viewModel.getCurrentTranslation().observeForever(observer);
