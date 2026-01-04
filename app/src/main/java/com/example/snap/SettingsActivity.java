@@ -115,8 +115,30 @@ public class SettingsActivity extends BaseActivity {
                         prefs.edit().putString(KEY_DEFAULT_TARGET_LANG, code).apply();
                         tvDefaultTarget.setText(languages[which]);
                     }
+                    
+                    // Actualizar también los idiomas actuales para que se reflejen inmediatamente
+                    updateCurrentLanguagesFromDefaults();
                 })
                 .show();
+    }
+    
+    /**
+     * Actualiza los idiomas actuales (current_languages) con los idiomas por defecto
+     * para que se reflejen inmediatamente en el selector de idiomas de las otras pantallas
+     */
+    private void updateCurrentLanguagesFromDefaults() {
+        SharedPreferences prefs = getSharedPreferences(getPrefsName(), MODE_PRIVATE);
+        String sourceCode = prefs.getString(KEY_DEFAULT_SOURCE_LANG, "es");
+        String targetCode = prefs.getString(KEY_DEFAULT_TARGET_LANG, "en");
+        
+        // Actualizar los idiomas actuales
+        SharedPreferences currentLangPrefs = getSharedPreferences("current_languages", MODE_PRIVATE);
+        currentLangPrefs.edit()
+                .putString("current_source_lang", sourceCode)
+                .putString("current_target_lang", targetCode)
+                .apply();
+                
+        android.util.Log.d("SettingsActivity", "Updated current languages to: " + sourceCode + " -> " + targetCode);
     }
 
     private void showAppLanguageDialog() {
