@@ -131,8 +131,23 @@ public class LoginActivity extends BaseActivity {
 
     private void handleSuccessfulLogin(String email) {
         sessionManager.saveSession(email);
+        
+        // Limpiar idiomas actuales para que use los idiomas por defecto del usuario
+        clearCurrentLanguages();
+        
         showMessage(getString(R.string.bienvenido, email));
         navigationManager.navigateToMain(true);
+    }
+
+    /**
+     * Limpia los idiomas guardados de la sesión actual.
+     * Esto asegura que al iniciar sesión o registrarse, 
+     * se usen los idiomas por defecto del usuario.
+     */
+    private void clearCurrentLanguages() {
+        android.content.SharedPreferences prefs = getSharedPreferences(
+                "current_languages", MODE_PRIVATE);
+        prefs.edit().clear().apply();
     }
 
     private String getEmailText() {

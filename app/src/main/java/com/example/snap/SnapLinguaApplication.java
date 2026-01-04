@@ -30,6 +30,35 @@ public class SnapLinguaApplication extends Application {
         super.onCreate();
         instance = this;
         android.util.Log.d("SnapLinguaApp", "Application onCreate");
+        
+        // Verificar si hay sesión activa
+        SharedPreferences sessionPrefs = getSharedPreferences("user_session", MODE_PRIVATE);
+        String activeUser = sessionPrefs.getString("active_email", null);
+        
+        // Verificar si es el primer inicio de la aplicación
+        SharedPreferences prefs = getSharedPreferences("app_state", MODE_PRIVATE);
+        boolean isFirstLaunch = prefs.getBoolean("is_first_launch", true);
+        
+        // Limpiar idiomas si es el primer inicio O si no hay sesión activa
+        if (isFirstLaunch || activeUser == null || activeUser.trim().isEmpty()) {
+            // Marcar que ya no es el primer inicio
+            if (isFirstLaunch) {
+                prefs.edit().putBoolean("is_first_launch", false).apply();
+            }
+            
+            // Limpiar idiomas actuales para que use los idiomas por defecto del invitado
+            clearCurrentLanguages();
+            android.util.Log.d("SnapLinguaApp", "Cleared current languages (first launch or no active session)");
+        }
+    }
+    
+    /**
+     * Limpia los idiomas guardados de la sesión actual.
+     * Se llama al iniciar la app por primera vez.
+     */
+    private void clearCurrentLanguages() {
+        SharedPreferences languagePrefs = getSharedPreferences("current_languages", MODE_PRIVATE);
+        languagePrefs.edit().clear().apply();
     }
     
     @Override

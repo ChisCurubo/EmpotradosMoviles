@@ -151,22 +151,36 @@ public class Camara extends BaseActivity {
     }
 
     private void setupLanguageSelector() {
-        // Obtenemos el usuario para guardar sus preferencias de idioma
-        String currentUser = getCurrentUser();
-        if (currentUser == null) currentUser = "guest";
+        // Primero intentamos cargar los idiomas de la sesión actual
+        String[] currentLanguages = languageSelector.loadCurrentLanguages();
+        
+        if (currentLanguages != null) {
+            // Si existen idiomas guardados en la sesión, los usamos
+            languageSelector.setLanguages(currentLanguages[0], currentLanguages[1]);
+        } else {
+            // Si no existen, cargamos los idiomas por defecto del usuario
+            String currentUser = getCurrentUser();
+            if (currentUser == null) currentUser = "guest";
 
-        android.content.SharedPreferences prefs = getSharedPreferences(
-                com.example.snap.SettingsActivity.PREFS_NAME + "_" + currentUser, MODE_PRIVATE);
+            android.content.SharedPreferences prefs = getSharedPreferences(
+                    com.example.snap.SettingsActivity.PREFS_NAME + "_" + currentUser, MODE_PRIVATE);
 
-        String defaultSource = prefs.getString(com.example.snap.SettingsActivity.KEY_DEFAULT_SOURCE_LANG, "es");
-        String defaultTarget = prefs.getString(com.example.snap.SettingsActivity.KEY_DEFAULT_TARGET_LANG, "en");
+            // Para el invitado (guest), usar inglés → español
+            String defaultSource = prefs.getString(com.example.snap.SettingsActivity.KEY_DEFAULT_SOURCE_LANG, 
+                    currentUser.equals("guest") ? "en" : "es");
+            String defaultTarget = prefs.getString(com.example.snap.SettingsActivity.KEY_DEFAULT_TARGET_LANG, 
+                    currentUser.equals("guest") ? "es" : "en");
 
-        languageSelector.setLanguages(defaultSource, defaultTarget);
+            languageSelector.setLanguages(defaultSource, defaultTarget);
+        }
 
         // Escuchamos cuando el usuario cambia los idiomas
         languageSelector.setOnLanguageChangeListener((srcCode, tgtCode, srcIndex, tgtIndex) -> {
             currentSourceCode = srcCode;
             currentTargetCode = tgtCode;
+            
+            // Guardar la selección actual para que persista al cambiar de pantalla
+            languageSelector.saveCurrentLanguages();
         });
     }
 

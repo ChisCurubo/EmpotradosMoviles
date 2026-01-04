@@ -60,7 +60,11 @@ public class SessionManager {
         SharedPreferences sessionPrefs = context.getSharedPreferences("session_prefs", Context.MODE_PRIVATE);
         sessionPrefs.edit().putString("active_user", "guest").apply();
         
-        Log.d(TAG, "Sesión cerrada (restaurado a guest en session_prefs)");
+        // Limpiar idiomas actuales para que use los idiomas por defecto del invitado
+        SharedPreferences languagePrefs = context.getSharedPreferences("current_languages", Context.MODE_PRIVATE);
+        languagePrefs.edit().clear().apply();
+        
+        Log.d(TAG, "Sesión cerrada (restaurado a guest y limpiados idiomas actuales)");
     }
     
     /**

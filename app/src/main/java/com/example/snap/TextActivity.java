@@ -80,24 +80,38 @@ public class TextActivity extends BaseActivity {
     }
 
     private void setupLanguageSelector() {
-        // Cargar preferencias por defecto
-        String currentUser = getCurrentUser();
-        if (currentUser == null)
-            currentUser = "guest";
+        // Primero intentamos cargar los idiomas de la sesión actual
+        String[] currentLanguages = languageSelector.loadCurrentLanguages();
+        
+        if (currentLanguages != null) {
+            // Si existen idiomas guardados en la sesión, los usamos
+            languageSelector.setLanguages(currentLanguages[0], currentLanguages[1]);
+        } else {
+            // Si no existen, cargamos los idiomas por defecto del usuario
+            String currentUser = getCurrentUser();
+            if (currentUser == null)
+                currentUser = "guest";
 
-        android.content.SharedPreferences prefs = getSharedPreferences(
-                com.example.snap.SettingsActivity.PREFS_NAME + "_" + currentUser, MODE_PRIVATE);
+            android.content.SharedPreferences prefs = getSharedPreferences(
+                    com.example.snap.SettingsActivity.PREFS_NAME + "_" + currentUser, MODE_PRIVATE);
 
-        String defaultSource = prefs.getString(com.example.snap.SettingsActivity.KEY_DEFAULT_SOURCE_LANG, "es");
-        String defaultTarget = prefs.getString(com.example.snap.SettingsActivity.KEY_DEFAULT_TARGET_LANG, "en");
+            // Para el invitado (guest), usar inglés → español
+            String defaultSource = prefs.getString(com.example.snap.SettingsActivity.KEY_DEFAULT_SOURCE_LANG, 
+                    currentUser.equals("guest") ? "en" : "es");
+            String defaultTarget = prefs.getString(com.example.snap.SettingsActivity.KEY_DEFAULT_TARGET_LANG, 
+                    currentUser.equals("guest") ? "es" : "en");
 
-        // Establecer idiomas por defecto (esto disparará el listener)
-        languageSelector.setLanguages(defaultSource, defaultTarget);
+            // Establecer idiomas por defecto
+            languageSelector.setLanguages(defaultSource, defaultTarget);
+        }
 
         languageSelector.setOnLanguageChangeListener((srcCode, tgtCode, srcIndex, tgtIndex) -> {
             sourceLang = srcCode;
             targetLang = tgtCode;
             updateQuickTranslationChips();
+            
+            // Guardar la selección actual para que persista al cambiar de pantalla
+            languageSelector.saveCurrentLanguages();
         });
     }
 

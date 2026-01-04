@@ -200,7 +200,50 @@ public class LanguageSelector extends LinearLayout {
         }
     }
 
-    // Opcional: acceso a los spinners si se requiere personalización visual
+    /**
+     * Guarda la selección actual de idiomas en SharedPreferences.
+     * Se usa una clave diferente a los idiomas "por defecto" para diferenciar
+     * entre la configuración inicial y la selección actual de la sesión.
+     */
+    public void saveCurrentLanguages() {
+        android.content.SharedPreferences prefs = getContext().getSharedPreferences(
+                "current_languages", android.content.Context.MODE_PRIVATE);
+        
+        prefs.edit()
+                .putString("current_source_lang", getSourceLangCode())
+                .putString("current_target_lang", getTargetLangCode())
+                .apply();
+    }
+
+    /**
+     * Carga los idiomas de la sesión actual desde SharedPreferences.
+     * Si no existen, devuelve null para que se usen los idiomas por defecto.
+     * 
+     * @return String[] con [sourceCode, targetCode] o null si no hay idiomas guardados
+     */
+    public String[] loadCurrentLanguages() {
+        android.content.SharedPreferences prefs = getContext().getSharedPreferences(
+                "current_languages", android.content.Context.MODE_PRIVATE);
+        
+        String source = prefs.getString("current_source_lang", null);
+        String target = prefs.getString("current_target_lang", null);
+        
+        if (source != null && target != null) {
+            return new String[]{source, target};
+        }
+        return null;
+    }
+
+    /**
+     * Limpia los idiomas actuales guardados.
+     * Se debe llamar al iniciar sesión, registrarse o iniciar la app por primera vez.
+     */
+    public void clearCurrentLanguages() {
+        android.content.SharedPreferences prefs = getContext().getSharedPreferences(
+                "current_languages", android.content.Context.MODE_PRIVATE);
+        prefs.edit().clear().apply();
+    }
+
     public Spinner getSpinnerSource() {
         return spinnerSourceLanguage;
     }
